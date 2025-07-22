@@ -7,7 +7,9 @@ export default {
         query: z.string()
     },
     callback: async (query: string) : Promise<any> => {
-       return {
+        console.log({query});
+        
+        return {
             content: [
                 { 
                     type: 'text', 
