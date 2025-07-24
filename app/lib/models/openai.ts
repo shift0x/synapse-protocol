@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { OpenAI } from "openai";
 import { Completion, PromptResponse } from "../types";
 
 export const DefaultOpenAIModelArgs = {
@@ -102,14 +102,16 @@ export class OpenAIModel {
         }
     }
 
-    async embed(content: string) : Promise<number[][] | null> {
+    async embed(content: string) : Promise<number[] | null> {
         try {
             const response = await this.client.embeddings.create({
               model: "text-embedding-ada-002", 
               input: content
             });
         
-            return response.data.map(item => item.embedding);
+            return response.data
+                .map(item => item.embedding)
+                .flat();
 
           } catch (error) {
             console.error('Error generating embeddings:', error);

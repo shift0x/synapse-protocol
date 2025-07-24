@@ -9,6 +9,26 @@ export type ChatTopic = {
     specialization: string
 }
 
+export type InterviewQuestionResponse = {
+    question: string,
+    response?: string,
+    error?: string
+}
+
+export type DomainExpert = {
+    topic: string,
+    subtopic: string,
+    data: DomainExpertData
+}
+
+export type DomainExpertData = {
+    interviews: DomainExpertInterviews
+}
+
+export type DomainExpertInterviews = {
+    questions: string[],
+    responses: { [key: string] : InterviewQuestionResponse[] }
+}
 
 export type PromptResponse = {
     error: Error | undefined,

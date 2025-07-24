@@ -8,9 +8,7 @@ export default async(req: VercelRequest, res: VercelResponse) : Promise<VercelRe
         const response = await getChatResponse(request.prompt);
         
         return res.json({
-            message: {
-                response
-            }
+            data: response
         })
 
     } catch(err){

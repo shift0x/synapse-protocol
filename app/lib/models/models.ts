@@ -16,5 +16,6 @@ export const MODEL_LIBRARY = {
     high: gpt_4_1,
     mini: gpt_4_1_mini,
     nano: gpt_4_1_nano,
-    reasoning: gpt_o4_mini_high
+    reasoning: gpt_o4_mini_high,
+    embeddings: gpt_4_1
 }

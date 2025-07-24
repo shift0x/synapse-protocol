@@ -17,15 +17,18 @@ const system_prompt = `
     }
 `
 
-export const getChatTopic = async (prompt: string) : Promise<ChatTopic> => {
+export const getPromptTopic = async (prompt: string) : Promise<ChatTopic> => {
     const session = new Session(system_prompt);
-    const key = 'getChatTopic'
+    const key = 'getPromptTopic'
     const input = `${prompt}`
 
-    await session.user(key, input, MODEL_LIBRARY.nano, [],  OpenAIJsonFormatArgs)
+    await session.user(key, input, MODEL_LIBRARY.high, [],  OpenAIJsonFormatArgs)
     
     const response = (session.getLastResponse()) as string
     const data = JSON.parse(response);
 
-    return data as ChatTopic
+    return {
+        topic: data.topic.toLowerCase(),
+        specialization: data.specialization.toLowerCase()
+    }
 }
