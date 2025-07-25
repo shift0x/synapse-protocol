@@ -4,16 +4,20 @@ import { createDefaultInterviewResponses } from "./createDefaultInterviewRespons
 
 export type createExpertDataResponse = {
     error?: string,
-    data?: DomainExpertData
+    data?: DomainExpertData,
+    cost: number
 }
 
 export const createExpertData = async(subtopic: string) : Promise<createExpertDataResponse> => {
-    const questions = await getInterviewQuestions(subtopic);
-    const defaultResponses = await createDefaultInterviewResponses(questions);
+    const { questions, cost: interviewQuestionsCost } = await getInterviewQuestions(subtopic);
+    const { responses: defaultResponses, cost: interviewResponsesCost } = await createDefaultInterviewResponses(questions);
 
+    const cost = interviewQuestionsCost+interviewResponsesCost
+    
     if(defaultResponses.length == 0){
         return {
-            error: "unable to generate default interview responses"
+            error: "unable to generate default interview responses",
+            cost
         }
     }
 
@@ -24,5 +28,5 @@ export const createExpertData = async(subtopic: string) : Promise<createExpertDa
         }
     }
 
-    return { data : { interviews } }
+    return { data : { interviews }, cost }
 }

@@ -15,6 +15,16 @@ export type InterviewQuestionResponse = {
     error?: string
 }
 
+export type DomainExpertInterview = {
+    expert: string,
+    interview: DomainExpertInsight[]
+}
+
+export type DomainExpertInsight = {
+    question: string,
+    response: string
+}
+
 export type DomainExpert = {
     topic: string,
     subtopic: string,
@@ -32,9 +42,10 @@ export type DomainExpertInterviews = {
 
 export type PromptResponse = {
     error: Error | undefined,
-    output: string | undefined,
+    output?: string | undefined,
     reasoning?: string | undefined,
-    tokens: number,
+    tokens?: number,
+    cost?: number
 }
 
 export type Completion = {

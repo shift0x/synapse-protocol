@@ -17,7 +17,13 @@ const system_prompt = `
     }
 `
 
-export const getPromptTopic = async (prompt: string) : Promise<ChatTopic> => {
+export type getPromptTopicResponse = {
+    error?: string,
+    chatTopic? : ChatTopic,
+    cost?:number
+}
+
+export const getPromptTopic = async (prompt: string) : Promise<getPromptTopicResponse> => {
     const session = new Session(system_prompt);
     const key = 'getPromptTopic'
     const input = `${prompt}`
@@ -26,9 +32,12 @@ export const getPromptTopic = async (prompt: string) : Promise<ChatTopic> => {
     
     const response = (session.getLastResponse()) as string
     const data = JSON.parse(response);
-
+    
     return {
-        topic: data.topic.toLowerCase(),
-        specialization: data.specialization.toLowerCase()
+        chatTopic: {
+            topic: data.topic.toLowerCase(),
+            specialization: data.specialization.toLowerCase()
+        },
+        cost: session.cost
     }
 }

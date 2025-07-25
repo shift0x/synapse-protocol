@@ -4,10 +4,12 @@ import { IModel } from "./model";
 export class Session {
     public context: string
     public history: Completion[]
+    public cost: number
 
     constructor(context: string = "") {
         this.context = context;
         this.history = [];
+        this.cost = 0;
     }
 
     async user(key: string, prompts: string | string[], model: IModel, history: Completion[] = this.history, args: any = {}) : Promise<Session> {
@@ -28,6 +30,8 @@ export class Session {
             if(response.error){
                 console.log(response.error)
             }
+
+            this.cost += response.cost || 0;
 
             this.history.push(completion);
         }

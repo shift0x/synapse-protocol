@@ -16,7 +16,12 @@ const system_message = `
     Format your output as a json array of strings, with each entry being the interview question
 `
 
-export const getInterviewQuestions = async (topic: string) : Promise<string[]> => {
+export type getInterviewQuestionsResponse = {
+    questions : string[],
+    cost: number
+}
+
+export const getInterviewQuestions = async (topic: string) : Promise<getInterviewQuestionsResponse> => {
     const prompt = `topic: ${topic}`
     const session = new Session(system_message)
     
@@ -24,5 +29,8 @@ export const getInterviewQuestions = async (topic: string) : Promise<string[]> =
 
     const questions = JSON.parse(session.getLastResponse() as string)
 
-    return questions as string[];
+    return {
+        questions: questions as string[],
+        cost: session.cost
+    } 
 }

@@ -7,34 +7,45 @@ import { createExpertData } from './createExpertData'
 export type getOrCreateExpertResponse = {
     error?: string,
     expert?: DomainExpert
+    cost : number
 }
 
 
 export const getOrCreateExpert = async (topic: string, subtopic: string) : Promise<getOrCreateExpertResponse> => {
-    const response : getOrCreateExpertResponse = {}
+    const response : getOrCreateExpertResponse = { cost: 0 }
     const embeddings = await MODEL_LIBRARY.embeddings.embed(subtopic)
 
     if(!embeddings){ 
-        return { error:  "unable to create embeddings" }
+        response.error =  "unable to create embeddings";
+
+        return response;
     }
 
-    const { error: getDomainExpertsError, data } = await getDomainExperts(embeddings, 1, .95)
+    const { error: getDomainExpertsError, data } = await getDomainExperts(embeddings, 1, .875)
 
     if(getDomainExpertsError){
-        return {error : getDomainExpertsError}
+        response.error = getDomainExpertsError;
+
+        return response;
     }
 
     if(data.length == 0){
-        const { error: createExpertDataError, data} = await createExpertData(subtopic) 
+        const { error: createExpertDataError, data, cost: createExpertDataCost} = await createExpertData(subtopic) 
+
+        response.cost = createExpertDataCost;
 
         if(createExpertDataError) {
-            return { error: createExpertDataError }
+            response.error = createExpertDataError;
+
+            return response;
         }
 
         const {error: storeDomainExpertError} = await storeDomainExpert(topic, subtopic, data, embeddings)
 
         if(storeDomainExpertError){
-            return { error: storeDomainExpertError }
+            response.error = storeDomainExpertError
+
+            return response;
         }
         
         response.expert = {

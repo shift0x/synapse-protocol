@@ -15,7 +15,12 @@ you provide your responses in json format like this:
 
 `
 
-const getQuestionResponse = async (question: string, retryOnError : boolean) : Promise<InterviewQuestionResponse> => {
+type getQuestionResponseOutput = {
+    response: InterviewQuestionResponse,
+    cost: number
+}
+
+const getQuestionResponse = async (question: string, retryOnError : boolean) : Promise<getQuestionResponseOutput> => {
     const prompt = `question: ${question}`
     const session = new Session(system_message)
 
@@ -24,7 +29,10 @@ const getQuestionResponse = async (question: string, retryOnError : boolean) : P
     try {
         const response = JSON.parse(session.getLastResponse() as string)
 
-        return response as InterviewQuestionResponse
+        return {
+            response : response as InterviewQuestionResponse,
+            cost: session.cost
+        }
     } catch(err){
         console.log(`error getting question respone: ${err}`)
 
@@ -33,21 +41,38 @@ const getQuestionResponse = async (question: string, retryOnError : boolean) : P
         }
 
         return {
-            question: question,
-            error: `${err}`
+            response: {
+                question: question,
+                error: `${err}`
+            },
+            cost: session.cost
         }
     }
     
 }
 
-export const createDefaultInterviewResponses = async (questions: string[]) : Promise<InterviewQuestionResponse[]> => {
+export type createDefaultInterviewResponsesResponse = {
+    responses: InterviewQuestionResponse[],
+    cost: number   
+}
+
+export const createDefaultInterviewResponses = async (questions: string[]) : Promise<createDefaultInterviewResponsesResponse> => {
     const operations = questions.map(question => {
         return getQuestionResponse(question, true)
     })
 
     const responses =  await Promise.all(operations)
+    
+    const cost = responses
+        .map(r => { return r.cost })
+        .reduce((prev, curr) => { return prev + curr })
 
-    return responses.filter(r => {
-        return !r.error
-    })
+    const validResponses = responses.filter(r => {
+        return !r.response.error
+    }). map( r => { return r.response })
+
+    return {
+        responses: validResponses, 
+        cost
+    }
 }

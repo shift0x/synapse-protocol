@@ -7,7 +7,8 @@ import { DomainExpert } from '../types'
 export type chatResponse = {
     error?: string,
     response? : string,
-    experts?: string[]
+    experts?: string[],
+    price? : number
 }
 
 const getSystemMessage = (expert : DomainExpert) : string => {
@@ -31,7 +32,7 @@ const getSystemMessage = (expert : DomainExpert) : string => {
 } 
 
 export const getChatResponse = async(prompt: string) : Promise<chatResponse> => {
-    const {error, expert} = await getExpertFromPrompt(prompt)
+    const {error, expert, cost: getExpertCost = 0} = await getExpertFromPrompt(prompt)
 
     if(error || !expert){
         return { error }
@@ -46,5 +47,7 @@ export const getChatResponse = async(prompt: string) : Promise<chatResponse> => 
     const response = session.getLastResponse()
     const experts = Object.keys(expert.data.interviews.responses)
 
-    return {response, experts}
+    const price = session.cost + getExpertCost;
+
+    return {response, experts, price}
 }

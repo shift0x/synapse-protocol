@@ -28,11 +28,13 @@ export class OpenAIModel {
     private client : OpenAI
     private _supportsMaxTokens : boolean
     private _defaultModelArgs : any
+    private _pricingTable : any
 
-    constructor(id: string, supportsMaxTokens: boolean, apiKey: string, defaultModelArgs: any = {}, url: string | undefined = undefined){
+    constructor(id: string, supportsMaxTokens: boolean, apiKey: string, pricingTable: any, defaultModelArgs: any = {}, url: string | undefined = undefined){
         this._id = id;
         this._supportsMaxTokens = supportsMaxTokens;
         this._defaultModelArgs = defaultModelArgs;
+        this._pricingTable = pricingTable;
 
         const args : any = {
             apiKey
@@ -83,20 +85,32 @@ export class OpenAIModel {
 
             const chatCompletion = await this.client.chat.completions.create(msg)
 
-            const message = chatCompletion.choices[0]
+            if(!chatCompletion.usage){
+                throw "incomplete response"
+            }
 
+            const message = chatCompletion.choices[0]
+            const oneMillion = 1000000
+            const pricingTable = this._pricingTable[this._id]
+
+            if(!pricingTable){
+                throw "undefined model pricing"
+            }
+
+            const inputTokenCost = (chatCompletion.usage.prompt_tokens / oneMillion) * pricingTable.input
+            const outputTokenCost = (chatCompletion.usage.completion_tokens / oneMillion) * pricingTable.output
+            const cost = inputTokenCost + outputTokenCost;
     
             return {
                 error: undefined,
                 output: message.message.content as string,
-                tokens: chatCompletion.usage?.total_tokens as number
+                tokens: chatCompletion.usage?.total_tokens as number,
+                cost: cost
             }
         } catch( err: any) {
 
             return {
                 error: err.message,
-                output: undefined,
-                tokens: 0
             }
 
         }
