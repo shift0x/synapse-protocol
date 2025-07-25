@@ -8,11 +8,15 @@ export default {
         query: z.string()
     },
     callback: async (query: string) : Promise<any> => {
-        const { error, interviews } = await getInterviewsFromPrompt(query)
+        const { interviews } = await getInterviewsFromPrompt(query)
         
         return {
-            error,
-            interviews
+            content: [
+                {
+                    type: "text",
+                    text: JSON.stringify(interviews)
+                }
+            ]
         }
     }
 }
