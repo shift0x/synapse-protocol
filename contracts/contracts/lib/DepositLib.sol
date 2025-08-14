@@ -16,7 +16,7 @@ library DepositLib {
     function getBalance(
         mapping(address => uint256) storage self,
         address payer
-    ) public view returns (uint256) {
+    ) internal view returns (uint256) {
         return self[payer];
     }
 
@@ -30,7 +30,7 @@ library DepositLib {
         mapping(address => uint256) storage self, 
         address usdc, 
         uint256 amount
-    ) public {
+    ) internal {
         // transfer the deposit amount into the contract
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);
 
@@ -42,24 +42,26 @@ library DepositLib {
      * @notice withdraw deposited USDC from contract
      * @param self the mapping of addresses to deposited amounts
      * @param usdc the address of usdc
+     * @param from the sender of the funds
      * @param to the receiver of the token transfer
      * @param amount the amount to withdraw
      */
     function transfer(
         mapping(address => uint256) storage self, 
         address usdc,
+        address from,
         address to,
         uint256 amount
-    ) public {
+    ) internal {
         // ensure the caller has enough deposited balance to withdraw
-        uint256 availableBalance = self[msg.sender];
+        uint256 availableBalance = self[from];
 
         if(availableBalance < amount){
             revert InsufficentTokenBalanceForWithdrawl(); 
         }
 
         // decrement token balance
-        self[msg.sender] -= amount;
+        self[from] -= amount;
 
         // sender funds to sender
         IERC20(usdc).transfer(to, amount);

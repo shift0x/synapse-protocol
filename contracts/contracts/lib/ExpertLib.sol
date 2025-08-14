@@ -12,7 +12,7 @@ library ExpertLib {
     function getTotalContributionWeight(
         mapping(bytes32 => uint256) storage self,
         bytes32 id
-    ) public view returns (uint256) {
+    ) internal view returns (uint256) {
         return self[id];
     }
 
@@ -24,7 +24,7 @@ library ExpertLib {
     function getExpertContributors(
         mapping(bytes32 => address[]) storage self,
         bytes32 id
-    ) public view returns (address[] memory) {
+    ) internal view returns (address[] memory) {
         return self[id];
     } 
 
@@ -38,7 +38,7 @@ library ExpertLib {
         mapping(bytes32 => mapping(address => uint256)) storage self,
         bytes32 id,
         address contributor
-    ) public view returns (uint256) {
+    ) internal view returns (uint256) {
         return self[id][contributor];
     }
 
@@ -50,19 +50,27 @@ library ExpertLib {
      * @param id the id of the expert
      * @param contributor the address of the contributor
      */
-    function addExpertContributor(
+    function contributeExpertKnowledge(
         mapping(bytes32 => mapping(address => uint256)) storage experts,
         mapping(bytes32 => address[]) storage contributors,
         mapping(bytes32 => uint256) storage weights,
         bytes32 id,
         address contributor,
         uint256 weight
-    ) public {
-        experts[id][contributor] = weight;
-        
-        weights[id] += weight;
+    ) internal {
+        uint256 currentExpertWeight = experts[id][contributor];
 
-        contributors[id].push(contributor);
+        // if the contributor already exists for the expert topic, then we need to ensure the weights are properly adjusted.
+        // otherwise, the contributor is new and should be added to the list of contributors for the expert topic
+        if(currentExpertWeight != 0){
+            weights[id] -= currentExpertWeight;
+        } else {
+            contributors[id].push(contributor);
+        }
+
+        // assign contributor weights and increment the total weight for the expert topic
+        experts[id][contributor] = weight;
+        weights[id] += weight;
     }
 
 }
