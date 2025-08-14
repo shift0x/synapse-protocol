@@ -6,7 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {MintableToken} from './MintableToken.sol';
 import {LiquidityPoolLib} from './lib/LiquidityPoolLib.sol';
-import {TokenHolderInfo, AccountEarnings} from './Types.sol';
+import {TokenHolderInfo} from './Types.sol';
 
 /**
  * @notice contract representing the knowledge contributed by an expert into the system
@@ -39,6 +39,9 @@ contract KnowledgeExpertPool is MintableToken {
 
     /// @notice the total earnings by token holder
     mapping(address => uint256) earnings;
+
+    /// @notice the total amount of fees collected from swaps
+    uint256 public swapFeesCollected;
 
     /// @notice the caller has insuffient permissions for the given operation
     error Unauthorized();
@@ -118,6 +121,9 @@ contract KnowledgeExpertPool is MintableToken {
 
         // execute the swap and record the transaction amounts
         (amountOut, feeAmount) = pool.swap(USDC, address(this), amountIn, FEE, CONTRIBUTOR);
+
+        // log the fee amount on the swap
+        swapFeesCollected += feeAmount;
     }
 
     /**
@@ -132,6 +138,9 @@ contract KnowledgeExpertPool is MintableToken {
 
         // execute the swap and record the transaction amounts
         (amountOut, feeAmount) = pool.swap(address(this), USDC, amountIn, FEE, CONTRIBUTOR);
+
+        // log the fee amount on the swap
+        swapFeesCollected += feeAmount;
     }
 
     /**

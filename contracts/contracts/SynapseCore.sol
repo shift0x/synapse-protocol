@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-import {SubjectMatterExpert, PoolInfo} from "./Types.sol";
+import {PoolInfo, ExpertInfo} from "./Types.sol";
 
 import {ExpertLib} from "./lib/ExpertLib.sol";
 import {DepositLib} from "./lib/DepositLib.sol";
@@ -25,7 +25,7 @@ contract SynapseCore {
     address immutable public KNOWLEDGE_MASTER;
 
     /// @notice the liquidity pool swap fee default amount
-    uint256 immutable public FEE;
+    uint256 immutable public SWAP_FEE;
 
     /// @notice tracks the deposit amounts available to pay for query requests by address
     /// @dev query requests come from API or MCP calls from models into the knowledge base. 
@@ -50,8 +50,8 @@ contract SynapseCore {
     /// @notice lookup of knowledge contributors to pool index
     mapping(address => uint256) public expertPoolLookup;
 
-    /// @notice list of all knowledge expert pools
-    address[] public pools;
+    /// @notice list of all pools for knowledge expert contributors
+    address[] public expertContributorPools;
 
     /// @notice Only the pay master is able to manage payments to contributors
     modifier onlyPayMaster(){
@@ -96,9 +96,9 @@ contract SynapseCore {
         USDC = _usdc;
         PAY_MASTER = _payMaster;
         KNOWLEDGE_MASTER = _knowledgeMaster;
-        FEE = _fee;
+        SWAP_FEE = _fee;
 
-        pools.push(address(0x0));
+        expertContributorPools.push(address(0x0));
     }
 
     /******************************************************************
@@ -109,7 +109,7 @@ contract SynapseCore {
     function getPoolInfos(
 
     ) public view returns (PoolInfo[] memory infos){
-        address[] memory _pools = pools;
+        address[] memory _pools = expertContributorPools;
 
         infos = new PoolInfo[](_pools.length);
 
@@ -133,14 +133,43 @@ contract SynapseCore {
         uint256 earnings = _pool.totalEarnings();
         uint256 quote = _pool.quote(); 
         address contributor = _pool.CONTRIBUTOR();
+        uint256 swapFeesCollected = _pool.swapFeesCollected();  
 
         info = PoolInfo(
             pool,
             contributor,
             marketCap,
             quote,
-            earnings
+            earnings,
+            swapFeesCollected
         );
+    }
+
+    /**
+     * @notice gets contributor info and lifetime earnings of the given expert
+     * @param id the id of the expert to get
+     */
+    function getExpertInfo(
+        bytes32 id
+    ) public view returns (ExpertInfo memory info) {
+        // store lifetime earnings amount for the expert
+        uint256 lifetimeEarnings = expertEarnings[id];
+
+        // get the collection of liquidity pools contributing to the
+        // knowledge base of the given expert
+        address[] memory contributors = ExpertLib.getExpertContributors(expertKnowledgeContributors, id);
+        PoolInfo[] memory pools = new PoolInfo[](contributors.length);
+
+        for(uint256 i = 0; i < contributors.length; i++){
+            pools[i] = getPoolInfo(contributors[i]);
+        }
+
+        // create and return the expert info
+        info = ExpertInfo({
+            id: id,
+            lifetimeEarnings: lifetimeEarnings,
+            contributors: pools
+        });
     }
 
 
@@ -195,12 +224,12 @@ contract SynapseCore {
         IERC20(USDC).transferFrom(msg.sender, address(this), initialPoolLiquidity);
 
         // create the new liquidity pool
-        KnowledgeExpertPool newPool = new KnowledgeExpertPool(msg.sender, address(this), USDC, FEE);
+        KnowledgeExpertPool newPool = new KnowledgeExpertPool(msg.sender, address(this), USDC, SWAP_FEE);
 
         // update pool lookups
-        expertPoolLookup[msg.sender] = pools.length;
+        expertPoolLookup[msg.sender] = expertContributorPools.length;
 
-        pools.push(address(newPool));
+        expertContributorPools.push(address(newPool));
 
         // allow the spend allowance for the pool on USDC tokens
         IERC20(USDC).approve(address(newPool), initialPoolLiquidity);
@@ -227,7 +256,7 @@ contract SynapseCore {
     ) public onlyKnowledgeMaster {
         // get the pool for the given contributor
         uint256 poolId = expertPoolLookup[contributor];
-        address pool = pools[poolId];
+        address pool = expertContributorPools[poolId];
 
         // add the expert to the list of experts if it's new
         if(expertKnowledgeContributors[id].length == 0){
@@ -259,6 +288,9 @@ contract SynapseCore {
         if(balance < fee){
             revert InsufficentBalanceToPayFees();
         }
+
+        // log the revenue for the expert
+        expertEarnings[id] += fee;
 
         // for each contributor determine the percentage of their payout
         // and send funds directly to the contributor

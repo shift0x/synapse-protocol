@@ -1,19 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-struct SubjectMatterExpert {
-    bytes32 id;
-    address[] contributors;
-}
-
 struct TokenHolderInfo {
     address account;
     uint256 balance;
-}
-
-struct AccountEarnings {
-    address account;
-    uint256 earnings;
 }
 
 struct PoolInfo {
@@ -22,4 +12,11 @@ struct PoolInfo {
     uint256 marketcap;
     uint256 quote;
     uint256 earnings;
+    uint256 swapFeesCollected;
+}
+
+struct ExpertInfo {
+    bytes32 id;
+    PoolInfo[] contributors;
+    uint256 lifetimeEarnings;
 }
