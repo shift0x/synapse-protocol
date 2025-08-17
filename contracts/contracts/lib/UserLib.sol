@@ -37,6 +37,17 @@ library UserLib {
     }
 
     /**
+     * @notice gets the account of the given address used to pay network fees
+     * @param account address of the account to query
+     */
+    function getAccount(
+        mapping(address => SynapseAPIUser) storage self,
+        address account
+    ) internal view returns (SynapseAPIUser memory) {
+        return self[account];
+    }
+
+    /**
      * @notice deposit usdc for future payments for API calls
      * @param self the mapping of addresses to deposited amounts
      * @param usdc the address of usdc

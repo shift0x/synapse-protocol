@@ -1,8 +1,10 @@
 import {loadFixture} from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { contributeExpertKnowledge, depositAPICredits, getAPIAccount, getContributors, getExperts, withdrawAPICredits } from "./helpers/synapse-core";
-import { parseEther } from "ethers";
+import { contributeExpertKnowledge, depositAPICredits, getAPIAccount, getPoolById, getPools, getExperts, pay, setupTestContributorAndExpert, withdrawAPICredits } from "./helpers/synapse-core";
+import { formatEther, parseEther } from "ethers";
+import { balanceOf, transferERC20 } from "./helpers/erc20";
+import { getTokenHolderEarnings } from "./helpers/knowledge-expert-pool";
 
 const contributorDisplayName = "TEST CONTRIBUTOR"
 
@@ -28,7 +30,10 @@ describe ("Synapse Core Tests", () => {
 
         await synapseCore.waitForDeployment();
         
-        return { deployer, synapseCore, usdc }
+        const usdcAddress = await usdc.getAddress();
+        const deployerAddress = await deployer.getAddress();
+
+        return { deployer, synapseCore, usdc, usdcAddress, deployerAddress }
     }
 
     describe("API Credit Management", () => {
@@ -38,7 +43,7 @@ describe ("Synapse Core Tests", () => {
             
             const depositAmount = 100;
 
-            await depositAPICredits(deployer, synapseCore, depositAmount.toString(), usdc);
+            await depositAPICredits(deployer, synapseCore, depositAmount, usdc);
             
             const account = await getAPIAccount(synapseCore, deployer);
 
@@ -51,7 +56,7 @@ describe ("Synapse Core Tests", () => {
             const depositAmount = 100;
             const deployerAddress = await deployer.getAddress()
 
-            await depositAPICredits(deployer, synapseCore, depositAmount.toString(), usdc);
+            await depositAPICredits(deployer, synapseCore, depositAmount, usdc);
             
             const account = await getAPIAccount(synapseCore, deployer);
 
@@ -66,8 +71,8 @@ describe ("Synapse Core Tests", () => {
             const depositAmount = 100;
             const withdrawAmount = 20;
 
-            await depositAPICredits(deployer, synapseCore, depositAmount.toString(), usdc);
-            await withdrawAPICredits(synapseCore, withdrawAmount.toString());
+            await depositAPICredits(deployer, synapseCore, depositAmount, usdc);
+            await withdrawAPICredits(synapseCore, withdrawAmount);
 
             const account = await getAPIAccount(synapseCore, deployer)
 
@@ -86,7 +91,7 @@ describe ("Synapse Core Tests", () => {
             await usdc.approve(synapseCore, depositAmount);
             await synapseCore.createContributor(contributorDisplayName, depositAmount);
 
-            const pools = await getContributors(synapseCore);
+            const pools = await getPools(synapseCore);
 
             expect(pools.length).is.equal(1);
 
@@ -107,10 +112,10 @@ describe ("Synapse Core Tests", () => {
             await usdc.approve(synapseCore, depositAmount);
             await synapseCore.createContributor(contributorDisplayName, depositAmount);
 
-            const contributorInfo = (await getContributors(synapseCore))[0];
+            const poolInfo = await getPoolById(synapseCore, 1);
             const weight = .5
 
-            await contributeExpertKnowledge(synapseCore, 0, contributorInfo.pool, weight);
+            await contributeExpertKnowledge(synapseCore, 0, poolInfo.pool, weight);
 
             const expertInfo = (await getExperts(synapseCore))[0];
 
@@ -118,9 +123,108 @@ describe ("Synapse Core Tests", () => {
             expect(expertInfo.lifetimeEarnings).is.equal(0);
             expect(expertInfo.totalWeight).is.equal(weight);
             expect(expertInfo.contributors.length).is.equal(1);
-            expect(expertInfo.contributors[0]).is.equal(contributorInfo.pool);
+            expect(expertInfo.contributors[0]).is.equal(poolInfo.pool);
         })
 
+    })
+
+    describe("Payments", () => {
+
+        it("should record fee revenue", async () => {
+            const { synapseCore, deployer, usdc } = await loadFixture(setup);
+            const { contributor, expert } = await setupTestContributorAndExpert(deployer, synapseCore, usdc);
+
+            const accountBalance = 100;
+            const feeAmount = 20;
+
+            await depositAPICredits(deployer, synapseCore, accountBalance, usdc);
+            await pay(synapseCore, expert.id, deployer, feeAmount);
+
+            const poolInfo = await getPoolById(synapseCore, contributor.id);
+
+            expect(poolInfo.earnings).is.equal(feeAmount);
+        });
+
+        it("should distribute payments to token holders by holdings amounts", async () => {
+            const { synapseCore, deployer, usdc, usdcAddress, deployerAddress } = await loadFixture(setup);
+            const { expert } = await setupTestContributorAndExpert(deployer, synapseCore, usdc);
+
+            const accountBalance = 100;
+            const feeAmount = 20;
+
+            await depositAPICredits(deployer, synapseCore, accountBalance, usdc);
+
+            const pool = await getPoolById(synapseCore, 1);
+
+            // transfer 10% of tokens to another address
+            const tokenBalance = await balanceOf(pool.pool, deployerAddress)
+            const transferAmount = tokenBalance*.1;
+
+            const signers = await hre.ethers.getSigners();
+            const otherSignerAddress = await signers[1].getAddress();
+
+            await transferERC20(pool.pool, transferAmount, otherSignerAddress);
+            await pay(synapseCore, expert.id, deployer, feeAmount);
+
+            // ensure token holders have received payouts in USDC amounts
+            const expectedPayoutAmount0 = feeAmount * .9;
+            const expectedPayoutAmount1 = feeAmount * .1;
+
+            const actualBalance0 = await balanceOf(usdcAddress, deployerAddress)
+            const actualBalance1 = await balanceOf(usdcAddress, otherSignerAddress)
+
+            expect(expectedPayoutAmount0).is.equal(actualBalance0);
+            expect(expectedPayoutAmount1).is.equal(actualBalance1);
+
+            // ensure the pool has properly recorded earnings for token holders
+            const earnings0 = await getTokenHolderEarnings(pool.pool, deployer);
+            const earnings1 = await getTokenHolderEarnings(pool.pool, otherSignerAddress)
+
+            expect(earnings0).is.equal(expectedPayoutAmount0);
+            expect(earnings1).is.equal(expectedPayoutAmount1);
+        })
+
+        it("should log api usage", async () => {
+            const { synapseCore, deployer, usdc } = await loadFixture(setup);
+            const { expert } = await setupTestContributorAndExpert(deployer, synapseCore, usdc);
+
+            const accountBalance = 100;
+            const feeAmount = 20;
+
+            await depositAPICredits(deployer, synapseCore, accountBalance, usdc);
+            await pay(synapseCore, expert.id, deployer, feeAmount);
+
+            const account = await getAPIAccount(synapseCore, deployer);
+
+            expect(account.lifetimeUsage).is.equal(feeAmount);
+        });
+
+        it("should split contributor payments by weight", async () => {
+            const { synapseCore, deployer, usdc } = await loadFixture(setup);
+            const [signer0, signer1] = await hre.ethers.getSigners();
+
+            const { contributor: pool0, expert } = await setupTestContributorAndExpert(signer0, synapseCore, usdc, {
+                expertId: 0,
+                weight: .9
+            });
+
+            const { contributor: pool1 } = await setupTestContributorAndExpert(signer1, synapseCore, usdc, {
+                expertId: expert.id,
+                weight: .1
+            });
+
+            const accountBalance = 100;
+            const feeAmount = 20;
+
+            await depositAPICredits(deployer, synapseCore, accountBalance, usdc);
+            await pay(synapseCore, expert.id, deployer, feeAmount);
+
+            const pool0AfterPayments = await getPoolById(synapseCore, pool0.id);
+            const pool1AfterPayments = await getPoolById(synapseCore, pool1.id);
+
+            expect(pool0AfterPayments.earnings).is.equal(feeAmount * .9);
+            expect(pool1AfterPayments.earnings).is.equal(feeAmount * .1);
+        })
     })
 
 });

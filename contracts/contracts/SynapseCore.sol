@@ -4,18 +4,22 @@ pragma solidity ^0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-import {ContributorInfo, ExpertInfo, SynapseAPIUser, ContributorInfo} from "./Types.sol";
+import {ExpertInfo, SynapseAPIUser, PoolInfo} from "./Types.sol";
 
 import {ExpertLib} from "./lib/ExpertLib.sol";
 import {UserLib} from "./lib/UserLib.sol";
-import {IKnowledgeExpertPool} from './interfaces/IKnowledgeExpertPool.sol';
+import {LiquidityPoolLib} from "./lib/LiquidityPoolLib.sol";
+
 import {IPoolFactory} from './interfaces/IPoolFactory.sol';
+import {IKnowledgeExpertPool} from './interfaces/IKnowledgeExpertPool.sol';
+
 
 /// @notice core contract for the synapse protocol. Responsible for handing deposits and 
 /// maintaining contribution tracking to the knowledge base
 contract SynapseCore {
     using UserLib for mapping(address => SynapseAPIUser);
     using ExpertLib for ExpertInfo[];
+    using LiquidityPoolLib for address[];
 
     /// @notice the address of the native USDC implementation on-chain
     address immutable public USDC;
@@ -41,7 +45,7 @@ contract SynapseCore {
     ExpertInfo[] public experts;
 
     /// @notice list of all pools for knowledge expert contributors
-    ContributorInfo[] public contributors;
+    address[] public pools;
 
     /// @notice mapping of registered contributors
     mapping(address => bool) public isRegisteredContributor;
@@ -80,8 +84,9 @@ contract SynapseCore {
     event Payout(uint256 indexed expert, address indexed caller, address indexed contributor, uint256 amount);
 
     /// @notice event for when a new pool is created for a contributor
-    /// @param contributor info for the new pool that was created
-    event ContributorCreated(ContributorInfo contributor);
+    /// @param pool the new pool contract address
+    /// @param contributor the knowledge contributor address
+    event PoolCreated(address pool, address contributor);
 
     /**
      * @notice contract constructor
@@ -104,17 +109,28 @@ contract SynapseCore {
         POOL_FACTORY = IPoolFactory(_poolFactory); 
 
         experts.push(ExpertInfo(0, new address[](0), 0, 0));
+        pools.push(address(0x0));
     }
 
     /******************************************************************
      * Public Views
      *******************************************************************/
     
-    /// @notice get pool information for all created pools
-    function getContributorInfos(
+    /**
+     * @notice get the pool information for the given id
+     * @param id the unique identifier of the pool
+     */ 
+    function getPoolInfoById(
+        uint256 id
+    ) public view returns (PoolInfo memory) {
+        return pools.getPoolInfoById(id);
+    }
 
-    ) public view returns (ContributorInfo[] memory infos){
-        return contributors;
+    /// @notice get pool information for all created pools
+    function getPoolInfos(
+
+    ) public view returns (PoolInfo[] memory infos){
+        return pools.getPoolInfos();
     }
 
     /**
@@ -170,10 +186,10 @@ contract SynapseCore {
      * @notice get the credit balance of the requested account
      * @param owner the account to get the balance for
      */
-    function getAPICreditBalance(
+    function getAPIAccount(
         address owner
-    ) public view returns (uint256) {
-        return apiAccounts.getBalance(owner);
+    ) public view returns (SynapseAPIUser memory) {
+        return apiAccounts.getAccount(owner);
     }
 
 
@@ -208,7 +224,7 @@ contract SynapseCore {
         IERC20(USDC).transferFrom(msg.sender, address(this), initialPoolLiquidity);
 
         // create the new liquidity pool
-        uint256 id = contributors.length;
+        uint256 id = pools.length;
 
         IKnowledgeExpertPool newPool = IKnowledgeExpertPool(POOL_FACTORY.createPool(id, displayName, msg.sender, USDC, SWAP_FEE, address(this)));
 
@@ -222,21 +238,9 @@ contract SynapseCore {
         IERC20(USDC).approve(address(newPool), 0);
 
          // create a liquidity pool info
-        ContributorInfo memory info = ContributorInfo({
-            id: id,
-            pool: address(newPool),
-            contributor: msg.sender,
-            marketcap: newPool.marketCap(), 
-            quote: newPool.quote(),
-            earnings: 0,
-            swapFeesCollected: 0,
-            totalSupply: newPool.totalSupply(),
-            name: displayName
-        });
+        pools.push(address(newPool));
 
-        contributors.push(info);
-
-        emit ContributorCreated(info);
+        emit PoolCreated(address(newPool), msg.sender);
     }
 
     /**

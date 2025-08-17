@@ -6,7 +6,7 @@ struct TokenHolderInfo {
     uint256 balance;
 }
 
-struct ContributorInfo {
+struct PoolInfo {
     uint256 id;
     address pool;
     address contributor;

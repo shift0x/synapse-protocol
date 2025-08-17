@@ -5,6 +5,9 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {SafeMath} from './SafeMath.sol';
 
+import {PoolInfo} from "../Types.sol";
+import {IKnowledgeExpertPool} from "../interfaces/IKnowledgeExpertPool.sol";
+
 /// @notice library reponsible for handing knowledge token liquidity pools
 /// @dev once tokens are deposited into the pool, users cannot withdraw the deposits -- they will need to swap. This is by design
 library LiquidityPoolLib {
@@ -15,6 +18,45 @@ library LiquidityPoolLib {
 
     /// @notice the pool does not have enough liquidity for the given swap params
     error InsufficentLiquidity();
+
+    /**
+     * @notice get pool information for the given pool id
+     * @param id the unique pool id to get
+     */
+    function getPoolInfoById(
+        address[] storage self,
+        uint256 id
+    ) internal view returns (PoolInfo memory){
+        IKnowledgeExpertPool pool = IKnowledgeExpertPool(self[id]);
+
+        return PoolInfo({
+                id: id, 
+                pool: address(pool),
+                contributor: pool.CONTRIBUTOR(),
+                marketcap: pool.marketCap(),
+                quote: pool.quote(),
+                earnings: pool.totalEarnings(),
+                swapFeesCollected: pool.swapFeesCollected(),
+                totalSupply: pool.totalSupply(),
+                name: pool.name()
+            }
+        );
+    }
+
+    /**
+     * @notice get pool information for all created pools
+     */
+    function getPoolInfos(
+        address[] storage self
+    ) internal view returns (PoolInfo[] memory){
+        PoolInfo[] memory infos = new PoolInfo[](self.length -1);
+        
+        for(uint256 i = 1; i < self.length; i++){
+            infos[i-1] = getPoolInfoById(self, i);
+        }
+
+        return infos;
+    }
 
     /**
      * @notice deposit the specified token into the liquidity pool

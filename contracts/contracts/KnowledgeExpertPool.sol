@@ -51,7 +51,7 @@ contract KnowledgeExpertPool is MintableToken {
     uint256 public totalEarnings;
 
     /// @notice the total earnings by token holder
-    mapping(address => uint256) earnings;
+    mapping(address => uint256) tokenHolderEarnings;
 
     /// @notice the total amount of fees collected from swaps
     uint256 public swapFeesCollected;
@@ -132,6 +132,16 @@ contract KnowledgeExpertPool is MintableToken {
     /// @notice get the quote price for the pool token
     function quote() public view returns (uint256) {
         return pool.getQuote(USDC);
+    }
+
+    /**
+     * @notice return the total earnings for the token holder specified
+     * @param holder the token holder to get earnings for
+     */
+    function getTokenHolderEarnings(
+        address holder
+    ) external view returns (uint256){
+        return tokenHolderEarnings[holder];
     }
 
     /**
@@ -237,7 +247,7 @@ contract KnowledgeExpertPool is MintableToken {
             IERC20(USDC).transfer(holder.account, payoutAmount);
 
             // keep track of the total earnings for accounts
-            earnings[holder.account] += payoutAmount;
+            tokenHolderEarnings[holder.account] += payoutAmount;
         }
     }
 
