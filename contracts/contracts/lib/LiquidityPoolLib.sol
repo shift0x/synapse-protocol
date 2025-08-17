@@ -114,9 +114,10 @@ library LiquidityPoolLib {
         mapping(address => uint256) storage self,
         address usdc
     ) internal view returns (uint256 marketCap){
-        uint256 usdcBalance = self[usdc];
-        
-        return usdcBalance * 2;
+        uint256 quote = getQuote(self, usdc);
+        uint256 supply = IERC20(address(this)).totalSupply();
+
+        return Math.mulDiv(quote, supply, 10**18);
     }
 
     /**

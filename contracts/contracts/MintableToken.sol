@@ -6,7 +6,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import {IMintableToken} from './interfaces/IMintableToken.sol';
 import {TokenHolderInfo} from './Types.sol';
- 
+
 /**
  * @notice Contract representing a token with a mint/burn mechanism
  * @dev The tokens can only be minted and burned by the speicified token miniter. This contract maintains a list

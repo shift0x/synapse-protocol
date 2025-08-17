@@ -8,6 +8,10 @@ import {MintableToken} from './MintableToken.sol';
 import {LiquidityPoolLib} from './lib/LiquidityPoolLib.sol';
 import {TokenHolderInfo} from './Types.sol';
 
+import {IMintableToken} from './interfaces/IMintableToken.sol';
+
+import 'hardhat/console.sol';
+
 /**
  * @notice contract representing the knowledge contributed by an expert into the system
  * @dev this contract will track all token holders with a stake in the given expert as well as facilitate trading
@@ -15,6 +19,9 @@ import {TokenHolderInfo} from './Types.sol';
  */
 contract KnowledgeExpertPool is MintableToken {
     using LiquidityPoolLib for mapping(address => uint256);
+
+    /// @notice the assigned id of the pool
+    uint256 public immutable POOL_ID;
 
     /// @notice the address of the knowledge contributor for this token
     address public immutable CONTRIBUTOR;
@@ -34,6 +41,12 @@ contract KnowledgeExpertPool is MintableToken {
     /// @notice liquidity pool balances
     mapping(address => uint256) pool;
 
+    /// @notice weights assigned to this contributor by expert
+    mapping(uint256 => uint256) expertWeights;
+
+    /// @notice the experts the pool owner has contributed to
+    uint256[] experts; 
+
     /// @notice total earnings of the knowledge expert
     uint256 public totalEarnings;
 
@@ -45,6 +58,15 @@ contract KnowledgeExpertPool is MintableToken {
 
     /// @notice the caller has insuffient permissions for the given operation
     error Unauthorized();
+
+    /// @notice failed to mint initial pool tokens
+    error FailedToMintInitialPoolTokens();
+
+    /// @notice transfer failed
+    error TransferFailed();
+
+    /// @notice the expert weight passed cannot be 0
+    error ExpertWeightCannotBeZero();
 
     /// @notice modify to restrict function calls to just the synapse core contract
     modifier onlySynapseCore() {
@@ -61,16 +83,19 @@ contract KnowledgeExpertPool is MintableToken {
      * @param _synapseCore the address of the core contract instance of the synapse protocol
      */
     constructor(
+        uint256 _poolId,
+        string memory _displayName,
         address _contributor,
         address _synapseCore,
         address _usdc,
         uint256 _fee
-    ) MintableToken(address(this), "Knowledge Expert","EXPERT")  {
+    ) MintableToken(address(this), _displayName,"EXPERT")  {
         CONTRIBUTOR = _contributor;
         SYNAPSE_CORE = _synapseCore;
         USDC = _usdc;
         CREATED_AT = block.timestamp;
         FEE = _fee;
+        POOL_ID = _poolId;
     }
 
 
@@ -81,16 +106,16 @@ contract KnowledgeExpertPool is MintableToken {
     function init(
         uint256 depositAmount
     ) public onlySynapseCore {
-        uint256 totalTokenSupply = 10**36;
+        uint256 totalTokenSupply = 10**18 * 100000; //100K tokens
 
         // the contributor gets 5% of the total token supply
-        uint256 contributorTokenBalance = totalTokenSupply / 20; 
-
+        uint256 contributorTokenBalance = totalTokenSupply / 20;
+        
         // mint tokens to this contract
-        mint(totalTokenSupply, address(this));
+        IMintableToken(address(this)).mint(totalTokenSupply, address(this));
 
         // transfer tokens to the contributor
-        transfer(CONTRIBUTOR, contributorTokenBalance);
+        IERC20(address(this)).transfer(CONTRIBUTOR, contributorTokenBalance);
         
         // deposit the initial pool USDC tokens into the liqudiity pool
         pool.deposit(USDC, SYNAPSE_CORE, depositAmount);
@@ -107,6 +132,44 @@ contract KnowledgeExpertPool is MintableToken {
     /// @notice get the quote price for the pool token
     function quote() public view returns (uint256) {
         return pool.getQuote(USDC);
+    }
+
+    /**
+     * @notice store the expert information when the creator contributes to an expert
+     */
+    function storeExpertInformation(
+        uint256 id,
+        uint256 weight
+    ) public onlySynapseCore {
+        if(weight == 0){
+            revert ExpertWeightCannotBeZero();
+        }
+        
+        // add the expert to the list of experts contributed to
+        experts.push(id);
+
+        // store the weight we have been given for the contribution
+        expertWeights[id] = weight;
+    }
+
+    /**
+     * @notice returns whether the expert is known
+     * @param id the id of the expert to query
+     */
+    function isContributingToExpert(
+        uint256 id
+    ) public view returns (bool) {
+        return expertWeights[id] != 0;
+    }
+
+    /**
+     * @notice get the weight for this pools contribution to a given expert
+     * @param id the id of the expert to fetch
+     */
+    function getExpertContributionWeight(
+        uint256 id
+    ) public view returns (uint256) {
+        return expertWeights[id];
     }
 
     /**

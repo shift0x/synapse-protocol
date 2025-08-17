@@ -3,21 +3,37 @@ pragma solidity ^0.8.28;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import {SynapseAPIUser} from '../Types.sol';
+
 /// @notice library reponsible for handing user deposits
-library DepositLib {
+library UserLib {
 
     /// @notice The depositor does not have enough tokens for the requested withdrawl
     error InsufficentTokenBalanceForWithdrawl();
 
+
+    /**
+     * @notice increment the lifetime usage amount for the given API user
+     * @param account the address of the user
+     * @param amount the amount of credits used
+     */
+    function addAPIUsage(
+        mapping(address => SynapseAPIUser) storage self,
+        address account,
+        uint256 amount
+    ) internal {
+        self[account].lifetimeUsage += amount;
+    }
+
     /**
      * @notice gets the current balance of the given address used to pay network fees
-     * @param payer address of the payer
+     * @param account address of the account to query
      */
     function getBalance(
-        mapping(address => uint256) storage self,
-        address payer
+        mapping(address => SynapseAPIUser) storage self,
+        address account
     ) internal view returns (uint256) {
-        return self[payer];
+        return self[account].balance;
     }
 
     /**
@@ -27,7 +43,7 @@ library DepositLib {
      * @param amount the amount to deposit into the contract
      */
     function deposit(
-        mapping(address => uint256) storage self, 
+        mapping(address => SynapseAPIUser) storage self, 
         address usdc, 
         uint256 amount
     ) internal {
@@ -35,7 +51,12 @@ library DepositLib {
         IERC20(usdc).transferFrom(msg.sender, address(this), amount);
 
         // credit the user balance with the inputted amount
-        self[msg.sender] += amount;
+        self[msg.sender].balance += amount;
+
+        if(self[msg.sender].account == address(0x0)){
+            self[msg.sender].account = msg.sender;
+            self[msg.sender].active = true;
+        }
     }
 
     /**
@@ -47,21 +68,21 @@ library DepositLib {
      * @param amount the amount to withdraw
      */
     function transfer(
-        mapping(address => uint256) storage self, 
+        mapping(address => SynapseAPIUser) storage self, 
         address usdc,
         address from,
         address to,
         uint256 amount
     ) internal {
         // ensure the caller has enough deposited balance to withdraw
-        uint256 availableBalance = self[from];
+        uint256 availableBalance = self[from].balance;
 
         if(availableBalance < amount){
             revert InsufficentTokenBalanceForWithdrawl(); 
         }
 
         // decrement token balance
-        self[from] -= amount;
+        self[from].balance -= amount;
 
         // sender funds to sender
         IERC20(usdc).transfer(to, amount);
