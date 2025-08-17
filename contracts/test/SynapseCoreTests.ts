@@ -6,7 +6,7 @@ import { parseEther } from "ethers";
 
 const contributorDisplayName = "TEST CONTRIBUTOR"
 
-describe ("Bank Tests", () => {
+describe ("Synapse Core Tests", () => {
 
     async function setup(){
         const [deployer] = await hre.ethers.getSigners();
