@@ -108,9 +108,10 @@ function makeModelFromPoolInfo(info: any) {
         marketcap: toNumber(info[3]),
         quote: toNumber(info[4]),
         earnings: toNumber(info[5]),
-        swapFeesCollected: toNumber(info[6]),
-        totalSupply: toNumber(info[7]),
-        name: info[8]
+        swapFeesToken0: toNumber(info[6]),
+        swapFeesToken1: toNumber(info[7]),
+        totalSupply: toNumber(info[8]),
+        name: info[9]
     }
 }
 

@@ -36,7 +36,8 @@ library LiquidityPoolLib {
                 marketcap: pool.marketCap(),
                 quote: pool.quote(),
                 earnings: pool.totalEarnings(),
-                swapFeesCollected: pool.swapFeesCollected(),
+                swapFeesToken0: pool.swapFeesToken0(),
+                swapFeesToken1: pool.swapFeesToken1(),
                 totalSupply: pool.totalSupply(),
                 name: pool.name()
             }

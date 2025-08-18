@@ -4,10 +4,10 @@ import {ethers, network} from 'hardhat';
 
 const MAX_INT = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
-export async function approve(tokenAddress : string, spender: string) : Promise<void> {
+export async function approve(account: any, tokenAddress : string, spender: string) : Promise<void> {
     const token = await ethers.getContractAt("@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20", tokenAddress);
 
-    await token.approve(spender, MAX_INT);
+    await token.connect(account).approve(spender, MAX_INT);
 }
 
 export async function transferERC20(tokenAddress: string, amount : number, to : string) : Promise<void> {

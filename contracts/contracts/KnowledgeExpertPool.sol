@@ -20,6 +20,12 @@ import 'hardhat/console.sol';
 contract KnowledgeExpertPool is MintableToken {
     using LiquidityPoolLib for mapping(address => uint256);
 
+    /// @notice the USDC token
+    address public immutable TOKEN0;
+
+    /// @notice the pool token
+    address public immutable TOKEN1;
+
     /// @notice the assigned id of the pool
     uint256 public immutable POOL_ID;
 
@@ -53,8 +59,13 @@ contract KnowledgeExpertPool is MintableToken {
     /// @notice the total earnings by token holder
     mapping(address => uint256) tokenHolderEarnings;
 
-    /// @notice the total amount of fees collected from swaps
-    uint256 public swapFeesCollected;
+    /// @notice the total amount of fees collected for token 0 (usdc)
+    uint256 public swapFeesToken0;
+
+    /// @notice the total amount of swap fees collected for token 1 (pool token)
+    uint256 public swapFeesToken1;
+
+    
 
     /// @notice the caller has insuffient permissions for the given operation
     error Unauthorized();
@@ -96,6 +107,8 @@ contract KnowledgeExpertPool is MintableToken {
         CREATED_AT = block.timestamp;
         FEE = _fee;
         POOL_ID = _poolId;
+        TOKEN0 = _usdc;
+        TOKEN1 = address(this);
     }
 
 
@@ -145,6 +158,21 @@ contract KnowledgeExpertPool is MintableToken {
     }
 
     /**
+     * @notice get the expected swap amounts for the given trade
+     * @param tokenIn the input token
+     * @param tokenOut the output token
+     * @param amountIn the input amount
+     */
+    function getAmountOut(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn
+    ) external view returns (uint256 amountOut, uint256 feeAmount) {
+        (amountOut, feeAmount) = pool.getAmountOut(tokenIn, tokenOut, amountIn, FEE);
+    }
+    
+
+    /**
      * @notice store the expert information when the creator contributes to an expert
      */
     function storeExpertInformation(
@@ -189,14 +217,11 @@ contract KnowledgeExpertPool is MintableToken {
     function buy(
         uint256 amountIn
     ) public returns(uint256 amountOut, uint256 feeAmount) {
-        // transfer the token amount to this contract
-        IERC20(USDC).transferFrom(msg.sender, address(this), amountIn);
-
         // execute the swap and record the transaction amounts
         (amountOut, feeAmount) = pool.swap(USDC, address(this), amountIn, FEE, CONTRIBUTOR);
 
         // log the fee amount on the swap
-        swapFeesCollected += feeAmount;
+        swapFeesToken0 += feeAmount;
     }
 
     /**
@@ -206,14 +231,11 @@ contract KnowledgeExpertPool is MintableToken {
     function sell(
         uint256 amountIn
     ) public returns (uint256 amountOut, uint256 feeAmount) {
-        // transfer the token amount to this contract
-        transferFrom(msg.sender, address(this), amountIn);
-
         // execute the swap and record the transaction amounts
         (amountOut, feeAmount) = pool.swap(address(this), USDC, amountIn, FEE, CONTRIBUTOR);
 
         // log the fee amount on the swap
-        swapFeesCollected += feeAmount;
+        swapFeesToken1 += feeAmount;
     }
 
     /**

@@ -24,8 +24,16 @@ interface IKnowledgeExpertPool is IERC20, IERC20Metadata {
 
     function totalEarnings() external view returns (uint256);
 
-    function swapFeesCollected() external view returns (uint256);
+    function swapFeesToken0() external view returns (uint256);
+
+    function swapFeesToken1() external view returns (uint256);
 
     function getTokenHolderEarnings(address holder) external view returns (uint256);
+
+    function buy(uint256 amountIn) external returns(uint256 amountOut, uint256 feeAmount);
+
+    function sell(uint256 amountIn) external returns (uint256 amountOut, uint256 feeAmount);
+
+    function getAmountOut(address tokenIn, address tokenOut,uint256 amountIn) external view returns (uint256 amountOut, uint256 feeAmount);
 
 }

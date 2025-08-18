@@ -3,8 +3,8 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { contributeExpertKnowledge, depositAPICredits, getAPIAccount, getPoolById, getPools, getExperts, pay, setupTestContributorAndExpert, withdrawAPICredits } from "./helpers/synapse-core";
 import { formatEther, parseEther } from "ethers";
-import { balanceOf, transferERC20 } from "./helpers/erc20";
-import { getTokenHolderEarnings } from "./helpers/knowledge-expert-pool";
+import { approve, balanceOf, transferERC20 } from "./helpers/erc20";
+import { buy, getAmountOut, getTokenHolderEarnings, sell } from "./helpers/knowledge-expert-pool";
 
 const contributorDisplayName = "TEST CONTRIBUTOR"
 
@@ -99,7 +99,8 @@ describe ("Synapse Core Tests", () => {
 
             expect(createdPool.contributor).is.equal(deployer);
             expect(createdPool.earnings).is.equal(0);
-            expect(createdPool.swapFeesCollected).is.equal(0);
+            expect(createdPool.swapFeesToken0).is.equal(0);
+            expect(createdPool.swapFeesToken1).is.equal(0);
             expect(createdPool.totalSupply).is.equal(100000);
             expect(createdPool.name).is.equal(contributorDisplayName);
         });
@@ -225,6 +226,64 @@ describe ("Synapse Core Tests", () => {
             expect(pool0AfterPayments.earnings).is.equal(feeAmount * .9);
             expect(pool1AfterPayments.earnings).is.equal(feeAmount * .1);
         })
+    })
+
+    describe("Swapping", () => {
+
+        it("should buy tokens", async () => {
+            const { synapseCore, deployer, usdc, usdcAddress } = await loadFixture(setup);
+            const { contributor } = await setupTestContributorAndExpert(deployer, synapseCore, usdc);
+            const [account0, account1] = await hre.ethers.getSigners()
+            
+            const swapAmount = 100;
+            const account1Address = await account1.getAddress();
+            const swapperStartingBalance = await balanceOf(contributor.pool, account1Address);
+            const feeCollectorStartingBalance = await balanceOf(usdcAddress, contributor.contributor);
+
+            const {amountOut, feeAmount} = await getAmountOut(contributor.pool, usdcAddress, contributor.pool, swapAmount);
+
+            await buy(account1, usdc, contributor.pool, swapAmount);
+
+            const swapperEndingBalance = await balanceOf(contributor.pool, account1Address);
+            const feeCollectorEndingBalance = await balanceOf(usdcAddress, contributor.contributor);
+
+            const poolInfo = await getPoolById(synapseCore, 1);
+
+            expect(swapperEndingBalance).is.equal(amountOut + swapperStartingBalance);
+            expect(feeCollectorEndingBalance).is.equal(feeCollectorStartingBalance + feeAmount);
+            expect(poolInfo.swapFeesToken0).is.equal(feeAmount);
+            expect(poolInfo.swapFeesToken1).is.equal(0);
+            
+        });
+
+        it("should sell tokens", async () => {
+            const { synapseCore, deployer, usdc, usdcAddress } = await loadFixture(setup);
+            const { contributor } = await setupTestContributorAndExpert(deployer, synapseCore, usdc);
+            const [account0, account1] = await hre.ethers.getSigners()
+            
+            const swapAmount = 10;
+            const account1Address = await account1.getAddress();
+
+            await transferERC20(contributor.pool, swapAmount, account1Address);
+
+            const swapperStartingBalance = await balanceOf(usdcAddress, account1Address);
+            const feeCollectorStartingBalance = await balanceOf(contributor.pool, contributor.contributor);
+
+            const {amountOut, feeAmount} = await getAmountOut(contributor.pool, contributor.pool, usdcAddress, swapAmount);
+
+            await sell(account1, contributor.pool, swapAmount);
+
+            const swapperEndingBalance = await balanceOf(usdcAddress, account1Address);
+            const feeCollectorEndingBalance = await balanceOf(contributor.pool, contributor.contributor);
+
+            const poolInfo = await getPoolById(synapseCore, 1);
+
+            expect(swapperEndingBalance).is.equal(amountOut + swapperStartingBalance);
+            expect(feeCollectorEndingBalance).is.equal(feeCollectorStartingBalance + feeAmount);
+            expect(poolInfo.swapFeesToken0).is.equal(0);
+            expect(poolInfo.swapFeesToken1).is.equal(feeAmount);
+        })
+
     })
 
 });

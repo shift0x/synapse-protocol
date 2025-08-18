@@ -13,7 +13,8 @@ struct PoolInfo {
     uint256 marketcap;
     uint256 quote;
     uint256 earnings;
-    uint256 swapFeesCollected;
+    uint256 swapFeesToken0;
+    uint256 swapFeesToken1;
     uint256 totalSupply;
     string name;
 }
