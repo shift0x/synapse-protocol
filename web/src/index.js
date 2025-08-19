@@ -2,6 +2,7 @@ import React from 'react';
 import App from './app/App';
 import ReactDOM from 'react-dom/client';
 import HomePage from './app/pages/HomePage';
+import APIKeyPage from './app/pages/APIKeyPage';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />
+      },
+      {
+        path: "/keys",
+        element: <APIKeyPage />
       }
     ]
   },
