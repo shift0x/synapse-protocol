@@ -115,34 +115,16 @@
   z-index: 2;
 }
 
-.section-header {
-  font-size: 2.75rem;
-  font-weight: 600;
-  color: #e5e7eb;
-  text-align: center;
-  letter-spacing: -0.02em;
-  position: relative;
-  margin-top: 0px;
-  margin-bottom: 2em;
-}
-
-.section-header::after {
-  content: '';
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
-}
-
 .personas-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 2rem;
   margin-bottom: 4rem;
   position: relative;
+}
+
+.how-it-works .section-header {
+  margin-bottom: 2em;
 }
 
 .persona-card {

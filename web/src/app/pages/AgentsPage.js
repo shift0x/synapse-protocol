@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './APIKeyPage.css';
+import './AgentsPage.css';
 
-const APIKeys = () => {
+const AgentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -67,6 +67,16 @@ const APIKeys = () => {
     console.log('Creating new API key');
   };
 
+  const handleDeposit = () => {
+    // Handle deposit logic
+    console.log('Opening deposit modal');
+  };
+
+  const handleWithdraw = () => {
+    // Handle withdraw logic
+    console.log('Opening withdraw modal');
+  };
+
   const filteredKeys = activeKeys.filter(key => 
     key.agent.toLowerCase().includes(searchTerm.toLowerCase()) ||
     key.apiKey.toLowerCase().includes(searchTerm.toLowerCase())
@@ -81,10 +91,10 @@ const APIKeys = () => {
           </div>
           <nav className="nav-links">
             <a href="/dashboard">Dashboard</a>
-            <a href="/api-keys" className="active">Agents</a>
-            <a href="/usage">Knowedge</a>
-            <a href="/billing">Trading</a>
-            <a href="/billing">Lending</a>
+            <a href="/agents" className="active">Agents</a>
+            <a href="/knowledge">Knowledge</a>
+            <a href="/trading">Trading</a>
+            <a href="/lending">Lending</a>
             <a href="/docs">Docs</a>
           </nav>
           <div className="header-balance">USDC 1,234.56</div>
@@ -93,31 +103,73 @@ const APIKeys = () => {
 
       <main className="main-content">
         <div className="page-header">
-          <div>
-            <h1 className="page-title">Manage Agent Keys</h1>
-            <p className="page-subtitle">
+          <div className="page-content">
+            <div className="section-header-left">
+              <h2 className="section-header mb-0">Connect Agents</h2>
+            </div>
+            <p className="page-subtitle mt-2">
               Create and manage keys for your agents. Keys call into our MCP server and draw from your prepaid balance.
             </p>
+            
+            <div className="api-usage-section">
+              <div className="usage-details">
+                <div className="usage-item">
+                  <label className="usage-label">MCP Server URL:</label>
+                  <div className="url-container">
+                    <code className="url-text">https://mcp.synapse.xyz/v1/retrieve</code>
+                    <button className="copy-btn" onClick={handleCopyUrl}>
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="usage-item">
+                  <label className="usage-label">Authentication:</label>
+                  <div className="auth-example">
+                    <code className="auth-text">Authorization: Bearer YOUR_API_KEY</code>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <button className="btn-primary" onClick={handleCreateKey}>
-            Create API Key
-          </button>
-        </div>
+          <div className="balance-section">
+            <div className="balance-header">
+              <div className="balance-title">API CREDIT BALANCE</div>
+            </div>
+            
+            <div className="balance-main">
+              <div className="balance-amount">$1,234.56</div>
+              <div className="balance-status">Available</div>
+            </div>
 
-        <div className="mcp-url-section">
-          <div className="url-container">
-            <span className="url-text">https://mcp.synapse.xyz/v1/retrieve</span>
-            <button className="copy-btn" onClick={handleCopyUrl}>
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/>
-              </svg>
-            </button>
+            <div className="balance-stats">
+              <div className="stat-row">
+                <span className="stat-label">Lifetime Spend</span>
+                <span className="stat-value">$482.13</span>
+              </div>
+            </div>
+
+            <div className="balance-buttons">
+              <button className="btn-add-credits" onClick={handleDeposit}>
+                Deposit
+              </button>
+              <button className="btn-withdraw" onClick={handleWithdraw}>
+                Withdraw
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="keys-section">
           <div className="section-header-row">
-            <h2 className="section-header">Active keys</h2>
+            <div className="section-header-left">
+              <h2 className="section-header mb-0">Manage Keys</h2>
+              <button className="btn-primary" onClick={handleCreateKey}>
+                Create Agent Key
+              </button>
+            </div>
             <div className="search-container">
               <input
                 type="text"
@@ -183,47 +235,9 @@ const APIKeys = () => {
             </div>
           </div>
         </div>
-
-        <div className="deactivated-keys-section">
-          <h2 className="section-header">Deactivated keys</h2>
-          <div className="table-container">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Agent</th>
-                  <th>API Key</th>
-                  <th>Spend (USDC)</th>
-                  <th>Created</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {deactivatedKeys.map((key) => (
-                  <tr key={key.id}>
-                    <td>{key.agent}</td>
-                    <td>
-                      <code className="api-key-display">{key.apiKey}</code>
-                    </td>
-                    <td>{key.spend.toLocaleString()}</td>
-                    <td>{key.created}</td>
-                    <td>
-                      <span className="status-inactive">{key.status}</span>
-                    </td>
-                    <td>
-                      <button className="reactivate-btn" disabled>
-                        Reactivate
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
       </main>
     </div>
   );
 };
 
-export default APIKeys;
+export default AgentsPage;

@@ -2,7 +2,7 @@ import React from 'react';
 import App from './app/App';
 import ReactDOM from 'react-dom/client';
 import HomePage from './app/pages/HomePage';
-import APIKeyPage from './app/pages/APIKeyPage';
+import AgentsPage from './app/pages/AgentsPage';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -30,8 +30,8 @@ const router = createBrowserRouter([
         element: <HomePage />
       },
       {
-        path: "/keys",
-        element: <APIKeyPage />
+        path: "/agents",
+        element: <AgentsPage />
       }
     ]
   },
