@@ -1,17 +1,47 @@
 import React from 'react';
+import App from './app/App';
 import ReactDOM from 'react-dom/client';
+import HomePage from './app/pages/HomePage';
+
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+
+import {
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
+
+import { WagmiProvider } from 'wagmi';
+import { config } from './app/lib/chain';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      {
+        path: "/",
+        element: <HomePage />
+      }
+    ]
+  },
+]);
+
+const queryClient = new QueryClient();
+
 root.render(
   <React.StrictMode>
-    <App />
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <RouterProvider router={router} />
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

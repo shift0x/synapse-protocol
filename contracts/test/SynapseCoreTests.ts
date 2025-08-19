@@ -2,8 +2,8 @@ import {loadFixture} from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 import { contributeExpertKnowledge, depositAPICredits, getAPIAccount, getPoolById, getPools, getExperts, pay, setupTestContributorAndExpert, withdrawAPICredits } from "./helpers/synapse-core";
-import { formatEther, parseEther } from "ethers";
-import { approve, balanceOf, transferERC20 } from "./helpers/erc20";
+import { parseEther } from "ethers";
+import { balanceOf, transferERC20 } from "./helpers/erc20";
 import { buy, getAmountOut, getTokenHolderEarnings, sell } from "./helpers/knowledge-expert-pool";
 
 const contributorDisplayName = "TEST CONTRIBUTOR"
