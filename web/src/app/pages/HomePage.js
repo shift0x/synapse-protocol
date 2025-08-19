@@ -1,20 +1,18 @@
-import React from 'react';
 import './HomePage.css';
-import { NavLink } from 'react-router-dom';
 
 const HomePage = () => {
   return (
     <div className="homepage">
       <header className="header">
         <div className="nav-container">
-          <div className="logo">Synapse Protocol</div>
+          <div className="logo">
+            <img src="/logo.png" className="logo-image" />
+          </div>
           <nav className="nav-links">
-            <a href="#builders">Builders</a>
-            <a href="#contributors">Contributors</a>
             <a href="#how-it-works">How it Works</a>
             <a href="#docs">Docs</a>
           </nav>
-          <button className="sign-up-btn">Sign Up</button>
+          <button className="launch-app-btn">Launch App</button>
         </div>
       </header>
 
@@ -25,8 +23,8 @@ const HomePage = () => {
             into smarter AI agents
           </h1>
           <p className="hero-subtitle">
-            Todays agents are knowledgeable, but without experience and judgement they lack the wisdom needed to be domain experts. Synapse solves this by giving real-world
-            human experiences from domain experts to agents via MCP
+            Todays agents are knowledgeable, but without experiences and judgement they lack the wisdom needed to be true experts. 
+            Synapse solves this by giving agents access to real-world human experiences from domain experts
           </p>
 
           <div className="hero-image-container">
@@ -39,7 +37,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        <section className="how-it-works">
+        <section className="how-it-works" id="how-it-works">
           <div className="section-container">
             <h2 className="section-header">How it works</h2>
             
@@ -55,7 +53,7 @@ const HomePage = () => {
                   </div>
                   <h3 className="persona-title">Contributors</h3>
                   <p className="persona-description">
-                    Earn when your knowledge is used. Mint a token that represents your expertise—trade it or borrow against it.
+                    Contribute domain knowledge by sharing your real-world experiences. Earn when your knowledge is used by agents. Mint a token that represents earnings from your shared expertise, trade it or borrow against it. Earn swap fees when others trade your knowledge token.
                   </p>
                   <div className="card-number">01</div>
                 </div>
@@ -73,7 +71,7 @@ const HomePage = () => {
                   </div>
                   <h3 className="persona-title">Agent Builders</h3>
                   <p className="persona-description">
-                    Access verified expertise to enhance your AI agents. Pay only for what you use and get measurable performance improvements.
+                    Create an API key and access expert knowledge via MCP to enhance your AI agents. Pay only for what you use and get measurable performance improvements.
                   </p>
                   <div className="card-number">02</div>
                 </div>
@@ -90,7 +88,7 @@ const HomePage = () => {
                   </div>
                   <h3 className="persona-title">Traders</h3>
                   <p className="persona-description">
-                    Trade expertise tokens based on performance metrics. Invest in knowledge that delivers real value and proven results.
+                    Find domain experts and trade their tokens in the expert marketplace. Hold short term to capture trends of hold long term to earn a share of contributor earnings.
                   </p>
                   <div className="card-number">03</div>
                 </div>
@@ -112,14 +110,6 @@ const HomePage = () => {
                   <div className="card-number">04</div>
                 </div>
               </div>
-            </div>
-
-            <div className="connection-lines">
-              <div className="line line-1"></div>
-              <div className="line line-2"></div>
-              <div className="pulse-dot dot-1"></div>
-              <div className="pulse-dot dot-2"></div>
-              <div className="pulse-dot dot-3"></div>
             </div>
           </div>
         </section>
