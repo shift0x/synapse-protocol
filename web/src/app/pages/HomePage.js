@@ -32,6 +32,9 @@ const HomePage = () => {
             <NavLink to="/app/dashboard">
                 <button className="btn-primary">Launch App</button>
             </NavLink>
+            <NavLink to="/app/agents">
+                <button className="btn-secondary">Manage Agents</button>
+            </NavLink>
           </div>
         </div>
 

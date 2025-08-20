@@ -21,6 +21,13 @@ const AppLayout = ({ balance = '1,234.56' }) => {
             </NavLink>
             
             <NavLink 
+              to="/app/agents" 
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              Manage Agents
+            </NavLink>
+
+            <NavLink 
               to="/app/knowledge" 
               className={({ isActive }) => isActive ? 'active' : ''}
             >
@@ -38,12 +45,7 @@ const AppLayout = ({ balance = '1,234.56' }) => {
             >
               Borrow / Lend
             </NavLink>
-            <NavLink 
-              to="/app/agents" 
-              className={({ isActive }) => isActive ? 'active' : ''}
-            >
-              Manage Agents
-            </NavLink>
+            
           </nav>
           <div className="header-balance">USDC {balance}</div>
         </div>
