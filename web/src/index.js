@@ -3,6 +3,7 @@ import App from './app/App';
 import ReactDOM from 'react-dom/client';
 import HomePage from './app/pages/HomePage';
 import AgentsPage from './app/pages/AgentsPage';
+import KnowledgePage from './app/pages/KnowledgePage';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -16,6 +17,7 @@ import {
 
 import { WagmiProvider } from 'wagmi';
 import { config } from './app/lib/chain';
+import AppLayout from './app/pages/AppLayout';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -30,8 +32,12 @@ const router = createBrowserRouter([
         element: <HomePage />
       },
       {
-        path: "/agents",
-        element: <AgentsPage />
+        path: "/app",
+        element: <AppLayout />,
+        children: [
+          { path: "agents", element: <AgentsPage /> },
+          { path: "knowledge", element: <KnowledgePage /> }
+        ]
       }
     ]
   },

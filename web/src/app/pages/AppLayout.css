@@ -1,0 +1,50 @@
+/* AppLayout Specific Styles - extracted from shared navigation patterns */
+
+/* Header Balance */
+.header-balance {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* Page Content Wrapper */
+.app-layout-content {
+  padding-top: 2rem;
+}
+
+/* Responsive adjustments for AppLayout */
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .nav-links a {
+    cursor: pointer;
+  }
+  
+  .header-balance {
+    order: -1;
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-links {
+    font-size: 0.875rem;
+  }
+  
+  .header-balance {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+  }
+}

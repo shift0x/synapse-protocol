@@ -83,25 +83,7 @@ const AgentsPage = () => {
   );
 
   return (
-    <div className="page-container">
-      <header className="header">
-        <div className="nav-container">
-          <div className="logo">
-            <img src="/logo.png" className="logo-image" alt="Synapse Protocol" />
-          </div>
-          <nav className="nav-links">
-            <a href="/dashboard">Dashboard</a>
-            <a href="/agents" className="active">Agents</a>
-            <a href="/knowledge">Knowledge</a>
-            <a href="/trading">Trading</a>
-            <a href="/lending">Lending</a>
-            <a href="/docs">Docs</a>
-          </nav>
-          <div className="header-balance">USDC 1,234.56</div>
-        </div>
-      </header>
-
-      <main className="main-content">
+    <>
         <div className="page-header">
           <div className="page-content">
             <div className="section-header-left">
@@ -235,8 +217,7 @@ const AgentsPage = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+    </>
   );
 };
 
