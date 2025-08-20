@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import HomePage from './app/pages/HomePage';
 import AgentsPage from './app/pages/AgentsPage';
 import KnowledgePage from './app/pages/KnowledgePage';
+import SwapPage from './app/pages/Swap'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -36,7 +37,8 @@ const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: "agents", element: <AgentsPage /> },
-          { path: "knowledge", element: <KnowledgePage /> }
+          { path: "knowledge", element: <KnowledgePage /> },
+          { path: "swap", element: <SwapPage /> }
         ]
       }
     ]

@@ -369,10 +369,20 @@ code {
   }
   
   .main-content {
-    padding: 0 1rem;
+    padding: 2rem 0 4rem 0;
   }
   
   .page-title {
     font-size: 2rem;
   }
+}
+
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 3rem;
+  margin-bottom: 2rem;
+  padding-top: 2rem;
 }

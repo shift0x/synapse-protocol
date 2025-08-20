@@ -1,0 +1,611 @@
+/* Swap Page Styles */
+
+.swap-page .swap-header {
+  margin-bottom: 2rem;
+}
+
+.swap-page .swap-title-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.swap-page .swap-main-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.swap-page .swap-subtitle {
+  font-size: 1.125rem;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+
+.swap-page .swap-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Left Panel - Token List */
+.swap-page .swap-left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.swap-page .search-section {
+  margin-bottom: 1rem;
+}
+
+.swap-page .search-container {
+  position: relative;
+  width: 100%;
+}
+
+.swap-page .search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #6b7280;
+}
+
+.swap-page .search-input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.swap-page .search-input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.swap-page .search-input::placeholder {
+  color: #6b7280;
+}
+
+.swap-page .filters-section {
+  margin-bottom: 1rem;
+}
+
+.swap-page .filter-tabs {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.swap-page .filter-tab {
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #9ca3af;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.swap-page .filter-tab:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.swap-page .filter-tab.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.swap-page .category-dropdown {
+  position: relative;
+}
+
+.swap-page .category-select {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #9ca3af;
+  padding: 0.75rem 2.5rem 0.75rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.swap-page .category-select:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.swap-page .dropdown-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+/* Token List */
+.swap-page .tokens-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.swap-page .token-row {
+  display: grid;
+  grid-template-columns: 170px 70px 55px 80px 65px 65px 65px 70px;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.swap-page .token-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.swap-page .token-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.swap-page .token-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.swap-page .avatar-circle {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.swap-page .token-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.swap-page .token-id {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.swap-page .token-name {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.swap-page .token-price {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.swap-page .price-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.swap-page .price-currency {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.swap-page .token-chart {
+  width: 60px;
+  height: 30px;
+}
+
+.swap-page .chart-placeholder {
+  width: 100%;
+  height: 100%;
+}
+
+.swap-page .chart-positive, 
+.swap-page .chart-negative {
+  width: 100%;
+  height: 100%;
+}
+
+.swap-page .token-change {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.swap-page .token-change.positive .change-percent {
+  color: #10b981;
+}
+
+.swap-page .token-change.negative .change-percent {
+  color: #ef4444;
+}
+
+.swap-page .change-percent {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.swap-page .change-detail {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.swap-page .token-market-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.swap-page .market-cap-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.swap-page .market-cap-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.swap-page .token-earnings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.swap-page .earnings-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.swap-page .earnings-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.swap-page .token-yield {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.swap-page .yield-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.swap-page .yield-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.swap-page .trade-btn {
+  background: transparent;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  color: #3b82f6;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.swap-page .trade-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+/* Right Panel - Swap Widget */
+.swap-page .swap-right-panel {
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
+}
+
+.swap-page .swap-widget {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(20px);
+}
+
+.swap-page .swap-widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.swap-page .widget-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+.swap-page .currency-display {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.swap-page .swap-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  padding: 0.25rem;
+}
+
+.swap-page .toggle-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.swap-page .toggle-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.swap-page .swap-inputs {
+  margin-bottom: 1.5rem;
+}
+
+.swap-page .input-section {
+  margin-bottom: 1rem;
+}
+
+.swap-page .input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.swap-page .input-label {
+  font-size: 0.875rem;
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+.swap-page .input-balance {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.swap-page .input-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.swap-page .amount-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.swap-page .amount-input:focus {
+  outline: none;
+}
+
+.swap-page .receive-amount {
+  flex: 1;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.swap-page .currency-selector {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  min-width: fit-content;
+}
+
+.swap-page .swap-arrow {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+
+.swap-page .swap-arrow svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #6b7280;
+}
+
+.swap-page .trade-details {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.swap-page .detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.swap-page .detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.swap-page .detail-row span:first-child {
+  color: #9ca3af;
+}
+
+.swap-page .detail-row span:last-child {
+  color: white;
+  font-weight: 500;
+}
+
+.swap-page .swap-execute-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border: none;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-bottom: 1rem;
+}
+
+.swap-page .swap-execute-btn:hover {
+  transform: translateY(-1px);
+}
+
+.swap-page .approve-section {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.swap-page .approve-text {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.swap-page .holdings-section {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.swap-page .holdings-header, 
+.swap-page .holdings-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.swap-page .holdings-detail:last-child {
+  margin-bottom: 0;
+}
+
+.swap-page .holdings-header span:first-child,
+.swap-page .holdings-detail span:first-child {
+  color: #9ca3af;
+}
+
+.swap-page .holdings-header span:last-child,
+.swap-page .holdings-detail span:last-child {
+  color: white;
+  font-weight: 500;
+}
+
+.swap-page .holdings-amount {
+  font-weight: 600 !important;
+}
+
+.swap-page .disclaimer {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .swap-page .swap-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .swap-page .swap-right-panel {
+    position: static;
+  }
+  
+  .swap-page .token-row {
+    grid-template-columns: 1fr 60px 45px 70px 55px 55px 55px 60px;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .swap-page .swap-main-title {
+    font-size: 2rem;
+  }
+  
+  .swap-page .swap-content {
+    padding: 0 1rem;
+  }
+  
+  .swap-page .token-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .swap-page .token-info {
+    justify-content: center;
+  }
+  
+  .swap-page .filter-tabs {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}

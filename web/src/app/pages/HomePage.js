@@ -88,7 +88,7 @@ const HomePage = () => {
                   </div>
                   <h3 className="persona-title">Traders</h3>
                   <p className="persona-description">
-                    Find domain experts and trade their tokens in the expert marketplace. Hold short term to capture trends of hold long term to earn a share of contributor earnings.
+                    Find domain experts and trade their tokens in the expert marketplace. Hold short term to capture trends or hold long term to earn a share of contributor earnings.
                   </p>
                   <div className="card-number">03</div>
                 </div>

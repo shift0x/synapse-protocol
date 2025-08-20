@@ -83,7 +83,7 @@ const AgentsPage = () => {
   );
 
   return (
-    <>
+    <div className="agents-page">
         <div className="page-header">
           <div className="page-content">
             <div className="section-header-left">
@@ -217,7 +217,7 @@ const AgentsPage = () => {
             </div>
           </div>
         </div>
-    </>
+    </div>
   );
 };
 
