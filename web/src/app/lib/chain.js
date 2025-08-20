@@ -1,24 +1,20 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { baseSepolia } from "viem/chains";
 
-const localhost = {
-  id: 31337,
-  name: 'Localhost',
-  iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png',
+const seiAtlantic = {
+  id: 1328,
+  name: 'Sei - Atlantic',
+  iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/23149.png',
   iconBackground: '#fff',
-  nativeCurrency: { name: 'Local', symbol: 'LOCAL', decimals: 18 },
+  nativeCurrency: { name: 'SEI', symbol: 'SEI', decimals: 18 },
   rpcUrls: {
-    default: { http: ['http://127.0.0.1:8545/'] },
+    default: { http: ['https://evm-rpc-testnet.sei-apis.com'] },
   },
 };
 
-const base = baseSepolia
-const testnet = localhost
 
 
-export const chain = base
 export const config = getDefaultConfig({
-  appName: 'Infinita Bank',
-  projectId: '254bbd81d790f1832819800b79cd23b2',
-  chains: [chain]
+  appName: 'Synapse Protocol',
+  projectId: '2c93cfbb327c11e15c19d5cf553b846a',
+  chains: [seiAtlantic]
 });

@@ -1,3 +1,5 @@
+import '@rainbow-me/rainbowkit/styles.css';
+
 import React from 'react';
 import App from './app/App';
 import ReactDOM from 'react-dom/client';
@@ -10,7 +12,7 @@ import BorrowLendPage from './app/pages/BorrowLendPage';
 import SwapPage from './app/pages/Swap'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { darkTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 
 import './index.css';
 
@@ -56,7 +58,7 @@ root.render(
   <React.StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider theme={darkTheme()}>
           <RouterProvider router={router} />
         </RainbowKitProvider>
       </QueryClientProvider>

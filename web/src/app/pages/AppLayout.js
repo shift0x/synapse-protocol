@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import './AppLayout.css';
 
 const AppLayout = ({ balance = '1,234.56' }) => {
@@ -47,7 +48,9 @@ const AppLayout = ({ balance = '1,234.56' }) => {
             </NavLink>
             
           </nav>
-          <div className="header-balance">USDC {balance}</div>
+          <div className="header-balance">
+            <ConnectButton />
+          </div>
         </div>
       </header>
 
