@@ -97,7 +97,7 @@ const KnowledgePage = () => {
           </p>
         </div>
         
-        <div className="earnings-section">
+        <div className="earnings-section dashboard-stat-card primary">
           <div className="earnings-header">
             <div className="earnings-title">LIFETIME EARNINGS</div>
           </div>

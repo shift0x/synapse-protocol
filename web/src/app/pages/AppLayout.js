@@ -33,7 +33,7 @@ const AppLayout = ({ balance = '1,234.56' }) => {
               Swap
             </NavLink>
             <NavLink 
-              to="/app/lend" 
+              to="/app/borrowlend" 
               className={({ isActive }) => isActive ? 'active' : ''}
             >
               Borrow / Lend

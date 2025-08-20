@@ -4,6 +4,9 @@ import ReactDOM from 'react-dom/client';
 import HomePage from './app/pages/HomePage';
 import AgentsPage from './app/pages/AgentsPage';
 import KnowledgePage from './app/pages/KnowledgePage';
+import DashboardPage from './app/pages/DashboardPage';
+import BorrowLendPage from './app/pages/BorrowLendPage';
+
 import SwapPage from './app/pages/Swap'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -36,9 +39,11 @@ const router = createBrowserRouter([
         path: "/app",
         element: <AppLayout />,
         children: [
+          { path: "dashboard", element: <DashboardPage /> },
           { path: "agents", element: <AgentsPage /> },
           { path: "knowledge", element: <KnowledgePage /> },
-          { path: "swap", element: <SwapPage /> }
+          { path: "swap", element: <SwapPage /> },
+          { path: "borrowlend", element: <BorrowLendPage /> }
         ]
       }
     ]

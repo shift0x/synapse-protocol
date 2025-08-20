@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router-dom';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -8,10 +9,6 @@ const HomePage = () => {
           <div className="logo">
             <img src="/logo.png" className="logo-image" />
           </div>
-          <nav className="nav-links">
-            <a href="#how-it-works">How it Works</a>
-            <a href="#docs">Docs</a>
-          </nav>
           <button className="launch-app-btn">Launch App</button>
         </div>
       </header>
@@ -32,8 +29,9 @@ const HomePage = () => {
           </div>
 
           <div className="cta-buttons">
-            <button className="btn-primary">Launch App</button>
-            <button className="btn-secondary">See Docs</button>
+            <NavLink to="/app/dashboard">
+                <button className="btn-primary">Launch App</button>
+            </NavLink>
           </div>
         </div>
 

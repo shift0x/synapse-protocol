@@ -116,7 +116,7 @@ const AgentsPage = () => {
               </div>
             </div>
           </div>
-          <div className="balance-section">
+          <div className="balance-section dashboard-stat-card primary">
             <div className="balance-header">
               <div className="balance-title">API CREDIT BALANCE</div>
             </div>
@@ -134,10 +134,10 @@ const AgentsPage = () => {
             </div>
 
             <div className="balance-buttons">
-              <button className="btn-add-credits" onClick={handleDeposit}>
+              <button className="btn-primary" onClick={handleDeposit}>
                 Deposit
               </button>
-              <button className="btn-withdraw" onClick={handleWithdraw}>
+              <button className="btn-secondary" onClick={handleWithdraw}>
                 Withdraw
               </button>
             </div>
