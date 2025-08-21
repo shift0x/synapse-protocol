@@ -1,4 +1,4 @@
-import { Completion } from "../types";
+import { Completion } from "../../types";
 import { IModel } from "./model";
 
 export class Session {

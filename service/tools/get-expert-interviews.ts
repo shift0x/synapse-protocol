@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { getInterviewsFromPrompt } from '../lib/insights/getInterviewsFromPrompt';
+import { chargeForApiKeyUsage } from '../lib/keys/chargeForApiKeyUsage';
 
 export default {
     name: "search-expert-interviews",
@@ -7,14 +8,18 @@ export default {
     schema: {
         query: z.string()
     },
-    callback: async (query: string) : Promise<any> => {
-        const { interviews } = await getInterviewsFromPrompt(query)
+    callback: async (query: string, authInfo: any) : Promise<any> => {
+        const { interviews, cost } = await getInterviewsFromPrompt(query)
+
+        await chargeForApiKeyUsage(authInfo.token, cost)
         
         return {
             content: [
                 {
                     type: "text",
-                    text: JSON.stringify(interviews)
+                    text: JSON.stringify({
+                        interviews
+                    })
                 }
             ]
         }

@@ -1,4 +1,4 @@
-import { DomainExpertInterview } from "../types";
+import { DomainExpertInterview } from "../../types";
 import { getExpertFromPrompt } from "../experts/getExpertFromPrompt";
 import { getInterviewsFromExpert } from './getInterviewsFromExpert';
 

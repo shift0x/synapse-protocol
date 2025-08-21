@@ -1,7 +1,7 @@
 import { MODEL_LIBRARY } from "../models/models"
 import { OpenAIJsonFormatArgs } from "../models/openai"
 import { Session } from "../models/session"
-import { InterviewQuestionResponse } from "../types"
+import { InterviewQuestionResponse } from "../../types"
 
 const system_message = `imagine you are interviewing for a new position. When the user prompts with a question, you will search for 
 expert content related to the question then synthesize their thoughts to create your own response to the interview question.

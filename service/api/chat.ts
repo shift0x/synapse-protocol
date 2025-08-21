@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { ChatRequest } from '../lib/types';
+import { ChatRequest } from '../types';
 import { getChatResponse } from '../lib/chat/getChatResponse'
 
 export default async(req: VercelRequest, res: VercelResponse) : Promise<VercelResponse> => {

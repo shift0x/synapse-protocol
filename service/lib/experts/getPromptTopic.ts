@@ -1,7 +1,7 @@
 import { MODEL_LIBRARY } from '../models/models';
 import { OpenAIJsonFormatArgs } from '../models/openai';
 import { Session } from '../models/session'
-import { ChatTopic } from '../types';
+import { ChatTopic } from '../../types';
 
 const system_prompt = `
     Imagine you work in a virtual switch board. On one side of the switch board are highly specialized ai agents that are 

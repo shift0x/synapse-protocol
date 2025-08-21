@@ -54,3 +54,18 @@ export type Completion = {
     model: string,
     response: PromptResponse
 }
+
+export type OperationResult<T> = {
+    error?: any
+    message?: string
+    data? : T
+}
+
+export type AccessKey = {
+    id: number,
+    created_at: Date,
+    owner_address: string,
+    access_key: string,
+    lifetime_spend: number,
+    is_active: boolean
+}

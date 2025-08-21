@@ -1,6 +1,6 @@
 import {getPromptTopic} from './getPromptTopic'
 import {getOrCreateExpert} from './getOrCreateExpert'
-import { DomainExpert } from '../types'
+import { DomainExpert } from '../../types'
 
 export type getExpertFromPromptResponse = {
     error? : string,

@@ -1,7 +1,7 @@
 import { getDomainExperts } from '../../db/getDomainExperts'
 import { storeDomainExpert } from '../../db/storeDomainExpert'
 import { MODEL_LIBRARY } from "../models/models"
-import { DomainExpert, DomainExpertData } from '../types'
+import { DomainExpert, DomainExpertData } from '../../types'
 import { createExpertData } from './createExpertData'
 
 export type getOrCreateExpertResponse = {

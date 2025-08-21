@@ -2,7 +2,7 @@ import { getExpertFromPrompt } from '../experts/getExpertFromPrompt'
 import { MODEL_LIBRARY } from '../models/models'
 import { OpenAIReasoningArgs } from '../models/openai'
 import { Session } from '../models/session'
-import { DomainExpert } from '../types'
+import { DomainExpert } from '../../types'
 
 export type chatResponse = {
     error?: string,

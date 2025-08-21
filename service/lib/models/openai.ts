@@ -1,5 +1,5 @@
 import { OpenAI } from "openai";
-import { Completion, PromptResponse } from "../types";
+import { Completion, PromptResponse } from "../../types";
 
 export const DefaultOpenAIModelArgs = {
     temperature: 1,

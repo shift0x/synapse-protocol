@@ -1,4 +1,4 @@
-import { Completion, PromptResponse } from "../types";
+import { Completion, PromptResponse } from "../../types";
 
 export interface IModel {
     id() : string;

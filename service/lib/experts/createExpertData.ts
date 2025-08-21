@@ -1,5 +1,5 @@
 import { getInterviewQuestions } from "../interview/getInterviewQuestions"
-import { DomainExpertData, DomainExpertInterviews } from "../types"
+import { DomainExpertData, DomainExpertInterviews } from "../../types"
 import { createDefaultInterviewResponses } from "./createDefaultInterviewResponses"
 
 export type createExpertDataResponse = {

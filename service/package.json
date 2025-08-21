@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.52.1",
     "@vercel/node": "^5.3.6",
+    "generate-api-key": "^1.0.2",
     "mcp-handler": "^1.0.1",
     "openai": "^5.10.2",
     "zod": "^3.24.2"

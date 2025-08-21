@@ -1,9 +1,19 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { ChatRequest } from '../lib/types';
-import { getInterviewsFromPrompt } from '../lib/insights/getInterviewsFromPrompt'
+import { ChatRequest } from '../types';
+import { getInterviewsFromPrompt } from '../lib/insights/getInterviewsFromPrompt';
+import { authenticate } from '../lib/auth/authenticate';
 
 export default async(req: VercelRequest, res: VercelResponse) : Promise<VercelResponse> => {
     try {
+        // Authenticate request
+        const { error: authError, account } = await authenticate(req);
+        
+        if (authError) {
+            return res.status(401).json({
+                error: authError
+            });
+        }
+
         const request = ChatRequest.parse(req.body);
         const { interviews, error, cost } = await getInterviewsFromPrompt(request.prompt)
         
@@ -11,7 +21,8 @@ export default async(req: VercelRequest, res: VercelResponse) : Promise<VercelRe
 
         return res.json({
             price: cost,
-            insights: interviews
+            insights: interviews,
+            account
         })
 
     } catch(err){

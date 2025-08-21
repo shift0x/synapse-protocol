@@ -1,4 +1,4 @@
-import {DomainExpert, DomainExpertInterview} from '../types'
+import {DomainExpert, DomainExpertInterview} from '../../types'
 
 export const getInterviewsFromExpert = async (expert: DomainExpert) : Promise<DomainExpertInterview[]> => {
 
