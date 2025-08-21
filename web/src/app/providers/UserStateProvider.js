@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import { getAccountTokenBalances } from '../lib/chain/getAccountTokenBalances.ts';
-import { getSynapseAPIUser } from '../lib/chain/getSynapseApiUser.ts'
+import { getSynapseAPIUser } from '../lib/chain/getSynapseAPIUser.ts';
+import { getAccountApiKeys } from '../lib/api/getAccountApiKeys.ts'
 
 // Create the context
 const UserStateContext = createContext();
@@ -24,6 +25,10 @@ export const UserStateProvider = ({ children }) => {
   const [synapseApiUser, setSynapseApiUser] = useState(null);
   const [isLoadingApiUser, setIsLoadingApiUser] = useState(false);
   const [apiUserError, setApiUserError] = useState(null);
+  
+  const [accessKeys, setAccessKeys] = useState([]);
+  const [isLoadingAccessKeys, setIsLoadingAccessKeys] = useState(false);
+  const [accessKeysError, setAccessKeysError] = useState(null);
   
   const { address } = useAccount();
 
@@ -73,10 +78,36 @@ export const UserStateProvider = ({ children }) => {
     }
   };
 
-  // Load balances and API user when address changes
+  // Function to update access keys that can be called by consumers
+  const refreshAccountApiKeys = async () => {
+    if (!address) {
+      setAccessKeys([]);
+      setIsLoadingAccessKeys(false);
+      setAccessKeysError(null);
+      return;
+    }
+
+    setIsLoadingAccessKeys(true);
+    setAccessKeysError(null);
+
+    try {
+      const keys = await getAccountApiKeys(address);
+      
+      setAccessKeys(keys);
+    } catch (error) {
+      console.error('Failed to fetch access keys:', error);
+      setAccessKeysError(error.message);
+      setAccessKeys([]);
+    } finally {
+      setIsLoadingAccessKeys(false);
+    }
+  };
+
+  // Load balances, API user, and access keys when address changes
   useMemo(() => { 
     updateTokenBalances(); 
     updateSynapseApiUser();
+    refreshAccountApiKeys();
   }, [address]);
 
   const value = {
@@ -88,6 +119,10 @@ export const UserStateProvider = ({ children }) => {
     isLoadingApiUser,
     apiUserError,
     updateSynapseApiUser,
+    accessKeys,
+    isLoadingAccessKeys,
+    accessKeysError,
+    refreshAccountApiKeys,
     address
   };
 

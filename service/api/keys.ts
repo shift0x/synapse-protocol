@@ -47,6 +47,16 @@ const handleDelete = async (req: VercelRequest, res: VercelResponse, account: st
 };
 
 export default async (req: VercelRequest, res: VercelResponse): Promise<VercelResponse> => {
+    // Set CORS headers to allow requests from any origin
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     try {
         const { method, url } = req;
         

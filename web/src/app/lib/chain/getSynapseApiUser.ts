@@ -1,7 +1,7 @@
 import { createPublicClient, formatEther, http } from 'viem';
 import { config } from './chain.js';
 import { SynapseCoreContract } from './contracts.js';
-import { SynapseAPIUser } from './types'
+import { SynapseAPIUser } from './types.js'
 
 export const getSynapseAPIUser = async (account: string) : Promise<SynapseAPIUser> => {
     try {

@@ -189,7 +189,7 @@ const DepositModal = ({ isOpen, onClose }) => {
   );
 
   return (
-    <div class="deposit-modal">
+    <div className="deposit-modal">
     <Modal
       isOpen={isOpen}
       onClose={onClose}
