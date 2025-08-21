@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './AgentsPage.css';
 import DepositModal from '../features/deposit/DepositModal';
 import WithdrawModal from '../features/withdraw/WithdrawModal';
+import CreateAgentKeyModal from '../features/create-agent-key/CreateAgentKeyModal';
 import { useUserState } from '../providers/UserStateProvider';
 import { formatCurrency } from '../lib/utils/currency';
 
@@ -9,6 +10,7 @@ const AgentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [isCreateKeyModalOpen, setIsCreateKeyModalOpen] = useState(false);
   
   // Get user state data
   const { synapseApiUser, isLoadingApiUser, accessKeys, isLoadingAccessKeys } = useUserState();
@@ -39,8 +41,7 @@ const AgentsPage = () => {
   };
 
   const handleCreateKey = () => {
-    // Handle create key logic
-    console.log('Creating new API key');
+    setIsCreateKeyModalOpen(true);
   };
 
   const handleDeposit = () => {
@@ -72,7 +73,7 @@ const AgentsPage = () => {
                 <div className="usage-item">
                   <label className="usage-label">MCP Server URL:</label>
                   <div className="url-container">
-                    <code className="url-text">https://mcp.synapse.xyz/v1/retrieve</code>
+                    <code className="url-text">https://synapse-protocol-api.vercel.app/mcp</code>
                     <button className="copy-btn" onClick={handleCopyUrl}>
                       <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/>
@@ -201,6 +202,10 @@ const AgentsPage = () => {
         <WithdrawModal 
           isOpen={isWithdrawModalOpen} 
           onClose={() => setIsWithdrawModalOpen(false)}
+        />
+        <CreateAgentKeyModal 
+          isOpen={isCreateKeyModalOpen} 
+          onClose={() => setIsCreateKeyModalOpen(false)}
         />
     </div>
   );

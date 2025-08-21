@@ -18,7 +18,15 @@ const handleGet = async (req: VercelRequest, res: VercelResponse, account: strin
 };
 
 const handlePost = async (req: VercelRequest, res: VercelResponse, account: string): Promise<VercelResponse> => {
-    const { data, error, message } = await generateAccessKey(account);
+    const { name } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+        return res.status(400).json({
+            error: 'Name is required and must be a non-empty string'
+        });
+    }
+
+    const { data, error, message } = await generateAccessKey(account, name.trim());
 
     if (error || message) {
         return res.status(500).json({ 
