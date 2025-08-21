@@ -18,3 +18,7 @@ export const config = getDefaultConfig({
   projectId: '2c93cfbb327c11e15c19d5cf553b846a',
   chains: [seiAtlantic]
 });
+
+export const getEtherscanLink = (txHash) => {
+  return `https://seitrace.com/tx/${txHash}?chain=atlantic-2`
+}

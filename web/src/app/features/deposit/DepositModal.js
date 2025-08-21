@@ -8,6 +8,7 @@ import { useUserState } from '../../providers/UserStateProvider';
 import { USDC } from '../../lib/chain/contracts.js';
 import { formatCurrency, parseCurrency } from '../../lib/utils/currency';
 import './DepositModal.css'
+import { getEtherscanLink } from '../../lib/chain/chain.js';
 
 const DepositModal = ({ isOpen, onClose }) => {
   const [amount, setAmount] = useState(''); 
@@ -61,12 +62,11 @@ const DepositModal = ({ isOpen, onClose }) => {
       );
 
       if (result.success) {
-        const explorerUrl = `https://seitrace.com/tx/${result.txHash}?chain=atlantic-2`;
         setDepositMessage(
           <>
             Successfully deposited {formatCurrency(numericAmount.toString())} API credits! 
             <a 
-              href={explorerUrl} 
+              href={getEtherscanLink(result.txHash)} 
               target="_blank" 
               rel="noopener noreferrer"
               className="tx-link"
@@ -119,12 +119,11 @@ const DepositModal = ({ isOpen, onClose }) => {
       );
 
       if (result.success) {
-        const explorerUrl = `https://seitrace.com/tx/${result.txHash}?chain=atlantic-2`;
         setStatusMessage(
           <>
             Successfully minted {mintAmount} test USDC! 
             <a 
-              href={explorerUrl} 
+              href={getEtherscanLink(result.txHash)} 
               target="_blank" 
               rel="noopener noreferrer"
               className="tx-link"

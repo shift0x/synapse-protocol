@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './AgentsPage.css';
 import DepositModal from '../features/deposit/DepositModal';
+import WithdrawModal from '../features/withdraw/WithdrawModal';
 import { useUserState } from '../providers/UserStateProvider';
 import { formatCurrency } from '../lib/utils/currency';
 
@@ -9,6 +10,7 @@ const AgentsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   
   // Get user state data
   const { synapseApiUser, isLoadingApiUser } = useUserState();
@@ -79,8 +81,7 @@ const AgentsPage = () => {
   };
 
   const handleWithdraw = () => {
-    // Handle withdraw logic
-    console.log('Opening withdraw modal');
+    setIsWithdrawModalOpen(true);
   };
 
   const filteredKeys = activeKeys.filter(key => 
@@ -231,6 +232,10 @@ const AgentsPage = () => {
         <DepositModal 
           isOpen={isDepositModalOpen} 
           onClose={() => setIsDepositModalOpen(false)}
+        />
+        <WithdrawModal 
+          isOpen={isWithdrawModalOpen} 
+          onClose={() => setIsWithdrawModalOpen(false)}
         />
     </div>
   );
