@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-import {ExpertInfo, SynapseAPIUser, PoolInfo} from "./Types.sol";
+import {ExpertInfo, SynapseAPIUser, PoolInfo, TokenHolderInfo} from "./Types.sol";
 
 import {ExpertLib} from "./lib/ExpertLib.sol";
 import {UserLib} from "./lib/UserLib.sol";
@@ -156,6 +156,32 @@ contract SynapseCore {
         }
 
         return _experts;
+    }
+
+    /**
+     * @notice get user balances of USDC and all expert tokens
+     * @param account the account to get balances for
+     */
+    function getAccountTokenBalances(
+        address account
+    ) public view returns (TokenHolderInfo[] memory balances) {
+        address[] memory _pools = pools;
+
+        balances = new TokenHolderInfo[](_pools.length);
+
+        balances[0] = TokenHolderInfo({
+            account: USDC,
+            balance: IERC20(USDC).balanceOf(account)
+        });
+
+        for(uint256 i = 1; i < _pools.length; i++){
+            balances[i] = TokenHolderInfo({
+                account: _pools[i],
+                balance: IERC20(_pools[i]).balanceOf(account)
+            });
+        }
+
+        return balances;
     }
 
     /******************************************************************

@@ -1,7 +1,7 @@
 import {loadFixture} from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { contributeExpertKnowledge, depositAPICredits, getAPIAccount, getPoolById, getPools, getExperts, pay, setupTestContributorAndExpert, withdrawAPICredits } from "./helpers/synapse-core";
+import { contributeExpertKnowledge, getAccountTokenBalances, depositAPICredits, getAPIAccount, getPoolById, getPools, getExperts, pay, setupTestContributorAndExpert, withdrawAPICredits } from "./helpers/synapse-core";
 import { parseEther } from "ethers";
 import { balanceOf, transferERC20 } from "./helpers/erc20";
 import { buy, getAmountOut, getTokenHolderEarnings, sell } from "./helpers/knowledge-expert-pool";
@@ -284,6 +284,27 @@ describe ("Synapse Core Tests", () => {
             expect(poolInfo.swapFeesToken1).is.equal(feeAmount);
         })
 
+    })
+
+    describe("View Tests", () => {
+
+        it("should get token holder balances", async () => {
+            const { synapseCore, deployer, usdc, usdcAddress } = await loadFixture(setup);
+            
+            const { contributor } = await setupTestContributorAndExpert(deployer, synapseCore, usdc);
+
+            const amount = 100;
+            const amountAsBig = parseEther(amount.toString());
+        
+            await usdc.mint(amountAsBig, deployer);
+
+            const balances = await getAccountTokenBalances(synapseCore, deployer);
+
+            expect(balances[0].balance).is.equal(amount);
+            expect(balances[0].account).is.equal(usdcAddress);
+            expect(balances[1].balance).is.equal(5000);
+            expect(balances[1].account).is.equal(contributor.pool);
+        });
     })
 
 });

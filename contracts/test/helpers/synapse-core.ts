@@ -16,6 +16,17 @@ export async function withdrawAPICredits(synapseCore: SynapseCore, amount: numbe
     await synapseCore.withdrawAPICredits(amountAsBig);
 }
 
+export async function getAccountTokenBalances(synapseCore: SynapseCore, account: any) {
+    const data = await synapseCore.getAccountTokenBalances(account);
+
+    return data.map(record => {
+        return {
+            account: record[0],
+            balance: Number(ethers.formatEther(record[1]))
+        }
+    });
+}
+
 export async function getAPIAccount(synapseCore: SynapseCore, account: any) {
     const data = await synapseCore.apiAccounts(account);
 
