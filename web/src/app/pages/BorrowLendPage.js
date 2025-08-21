@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Modal from '../components/Modal';
 import './BorrowLendPage.css';
 
 const BorrowLendPage = () => {
@@ -148,213 +149,191 @@ const BorrowLendPage = () => {
   };
 
   const renderBorrowModal = () => (
-    <div className={`borrowlend-modal-overlay ${showBorrowModal ? 'active' : ''}`}>
-      <div className="borrowlend-modal">
-        <div className="borrowlend-modal-header">
-          <h3 className="borrowlend-modal-title">Borrow Against Future Earnings</h3>
+    <Modal
+      isOpen={showBorrowModal}
+      onClose={() => setShowBorrowModal(false)}
+      title="Borrow Against Future Earnings"
+      actions={
+        <>
           <button 
-            className="borrowlend-modal-close"
+            className="borrowlend-action-btn secondary"
             onClick={() => setShowBorrowModal(false)}
           >
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"/>
-            </svg>
+            Cancel
           </button>
-        </div>
-        
-        <div className="borrowlend-modal-content">
-          {selectedCollateralForBorrow && (
-            <div className="borrowlend-collateral-details">
-              <h4>Collateral Details</h4>
-              <div className="borrowlend-collateral-summary">
-                <div className="borrowlend-collateral-header">
-                  <div className="borrowlend-collateral-info">
-                    <span className="borrowlend-expert-name">{selectedCollateralForBorrow.expert}</span>
-                    <span className="borrowlend-token-category">{selectedCollateralForBorrow.category}</span>
-                  </div>
-                </div>
-                <div className="borrowlend-collateral-metrics">
-                  <div className="borrowlend-collateral-metric">
-                    <span className="borrowlend-metric-label">Earnings</span>
-                    <span className="borrowlend-metric-value">${selectedCollateralForBorrow.lifetimeEarnings.toLocaleString()}</span>
-                  </div>
-                  <div className="borrowlend-collateral-metric">
-                    <span className="borrowlend-metric-label">Est. Annual</span>
-                    <span className="borrowlend-metric-value">${selectedCollateralForBorrow.estimatedAnnualEarnings.toLocaleString()}</span>
-                  </div>
-                  <div className="borrowlend-collateral-metric">
-                    <span className="borrowlend-metric-label">Max Borrow</span>
-                    <span className="borrowlend-metric-value highlight">${selectedCollateralForBorrow.maxBorrowable.toLocaleString()}</span>
-                  </div>
-                </div>
+          <button 
+            className="borrowlend-action-btn primary"
+            disabled={borrowAmount === 0 || !selectedCollateralForBorrow}
+          >
+            Get Loan
+          </button>
+        </>
+      }
+    >
+      {selectedCollateralForBorrow && (
+        <div className="borrowlend-collateral-details">
+          <h4>Collateral Details</h4>
+          <div className="borrowlend-collateral-summary">
+            <div className="borrowlend-collateral-header">
+              <div className="borrowlend-collateral-info">
+                <span className="borrowlend-expert-name">{selectedCollateralForBorrow.expert}</span>
+                <span className="borrowlend-token-category">{selectedCollateralForBorrow.category}</span>
               </div>
             </div>
-          )}
-
-          <div className="borrowlend-calculator">
-            <div className="borrowlend-input-group">
-              <label className="borrowlend-input-label">Loan Amount (USDC)</label>
-              <div className="borrowlend-input-container">
-                <input
-                  type="number"
-                  value={borrowAmount}
-                  onChange={(e) => setBorrowAmount(parseFloat(e.target.value) || 0)}
-                  max={getMaxBorrowable()}
-                  className="borrowlend-amount-input"
-                  placeholder="0.00"
-                />
-                <span className="borrowlend-input-suffix">USDC</span>
+            <div className="borrowlend-collateral-metrics">
+              <div className="borrowlend-collateral-metric">
+                <span className="borrowlend-metric-label">Earnings</span>
+                <span className="borrowlend-metric-value">${selectedCollateralForBorrow.lifetimeEarnings.toLocaleString()}</span>
               </div>
-              <div className="borrowlend-amount-info">
-                <span>Max available: ${getMaxBorrowable().toLocaleString()}</span>
+              <div className="borrowlend-collateral-metric">
+                <span className="borrowlend-metric-label">Est. Annual</span>
+                <span className="borrowlend-metric-value">${selectedCollateralForBorrow.estimatedAnnualEarnings.toLocaleString()}</span>
               </div>
-            </div>
-
-            <div className="borrowlend-input-group">
-              <label className="borrowlend-input-label">Loan Term</label>
-              <div className="borrowlend-term-options">
-                {[30, 90, 180, 365].map((days) => (
-                  <button
-                    key={days}
-                    className={`borrowlend-term-btn ${loanTerm === days ? 'active' : ''}`}
-                    onClick={() => setLoanTerm(days)}
-                  >
-                    {days} days
-                  </button>
-                ))}
+              <div className="borrowlend-collateral-metric">
+                <span className="borrowlend-metric-label">Max Borrow</span>
+                <span className="borrowlend-metric-value highlight">${selectedCollateralForBorrow.maxBorrowable.toLocaleString()}</span>
               </div>
-            </div>
-
-            <div className="borrowlend-loan-summary">
-              <div className="borrowlend-summary-row">
-                <span>Interest Rate</span>
-                <span className="borrowlend-rate">15.0% APY</span>
-              </div>
-              <div className="borrowlend-summary-row">
-                <span>Total Interest</span>
-                <span>${borrowAmount > 0 ? ((borrowAmount * 15 / 100) * (loanTerm / 365)).toFixed(2) : '0.00'}</span>
-              </div>
-              <div className="borrowlend-summary-row total">
-                <span>Total Repayment</span>
-                <span>${borrowAmount > 0 ? (borrowAmount + (borrowAmount * 15 / 100) * (loanTerm / 365)).toFixed(2) : '0.00'}</span>
-              </div>
-            </div>
-
-            <div className="borrowlend-modal-actions">
-              <button 
-                className="borrowlend-action-btn secondary"
-                onClick={() => setShowBorrowModal(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="borrowlend-action-btn primary"
-                disabled={borrowAmount === 0 || !selectedCollateralForBorrow}
-              >
-                Get Loan
-              </button>
             </div>
           </div>
         </div>
+      )}
+
+      <div className="borrowlend-calculator">
+        <div className="borrowlend-input-group">
+          <label className="borrowlend-input-label">Loan Amount (USDC)</label>
+          <div className="borrowlend-input-container">
+            <input
+              type="number"
+              value={borrowAmount}
+              onChange={(e) => setBorrowAmount(parseFloat(e.target.value) || 0)}
+              max={getMaxBorrowable()}
+              className="borrowlend-amount-input"
+              placeholder="0.00"
+            />
+            <span className="borrowlend-input-suffix">USDC</span>
+          </div>
+          <div className="borrowlend-amount-info">
+            <span>Max available: ${getMaxBorrowable().toLocaleString()}</span>
+          </div>
+        </div>
+
+        <div className="borrowlend-input-group">
+          <label className="borrowlend-input-label">Loan Term</label>
+          <div className="borrowlend-term-options">
+            {[30, 90, 180, 365].map((days) => (
+              <button
+                key={days}
+                className={`borrowlend-term-btn ${loanTerm === days ? 'active' : ''}`}
+                onClick={() => setLoanTerm(days)}
+              >
+                {days} days
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="borrowlend-loan-summary">
+          <div className="borrowlend-summary-row">
+            <span>Interest Rate</span>
+            <span className="borrowlend-rate">15.0% APY</span>
+          </div>
+          <div className="borrowlend-summary-row">
+            <span>Total Interest</span>
+            <span>${borrowAmount > 0 ? ((borrowAmount * 15 / 100) * (loanTerm / 365)).toFixed(2) : '0.00'}</span>
+          </div>
+          <div className="borrowlend-summary-row total">
+            <span>Total Repayment</span>
+            <span>${borrowAmount > 0 ? (borrowAmount + (borrowAmount * 15 / 100) * (loanTerm / 365)).toFixed(2) : '0.00'}</span>
+          </div>
+        </div>
       </div>
-    </div>
+    </Modal>
   );
 
   const renderLendModal = () => (
-    <div className={`borrowlend-modal-overlay ${showLendModal ? 'active' : ''}`}>
-      <div className="borrowlend-modal">
-        <div className="borrowlend-modal-header">
-          <h3 className="borrowlend-modal-title">Supply Liquidity</h3>
+    <Modal
+      isOpen={showLendModal}
+      onClose={() => setShowLendModal(false)}
+      title="Supply Liquidity"
+      actions={
+        <>
           <button 
-            className="borrowlend-modal-close"
+            className="borrowlend-action-btn secondary"
             onClick={() => setShowLendModal(false)}
           >
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"/>
-            </svg>
+            Cancel
           </button>
-        </div>
-        
-        <div className="borrowlend-modal-content">
-          {selectedPoolForLend && (
-            <div className="borrowlend-collateral-details">
-              <h4>Pool Information</h4>
-              <div className="borrowlend-collateral-summary">
-                <div className="borrowlend-collateral-header">
-                  <div className="borrowlend-collateral-info">
-                    <span className="borrowlend-expert-name">{selectedPoolForLend.category} Pool</span>
-                    <span className="borrowlend-token-category">Lending Pool</span>
-                  </div>
-                </div>
-                <div className="borrowlend-collateral-metrics">
-                  <div className="borrowlend-collateral-metric">
-                    <span className="borrowlend-metric-label">APY</span>
-                    <span className="borrowlend-metric-value highlight">{selectedPoolForLend.apy}%</span>
-                  </div>
-                  <div className="borrowlend-collateral-metric">
-                    <span className="borrowlend-metric-label">Pool Size</span>
-                    <span className="borrowlend-metric-value">${(selectedPoolForLend.totalValue / 1000).toFixed(0)}K</span>
-                  </div>
-                  <div className="borrowlend-collateral-metric">
-                    <span className="borrowlend-metric-label">Utilization</span>
-                    <span className="borrowlend-metric-value">{selectedPoolForLend.utilization}%</span>
-                  </div>
-                </div>
+          <button 
+            className="borrowlend-action-btn primary"
+            disabled={lendAmount === 0}
+          >
+            Supply Liquidity
+          </button>
+        </>
+      }
+    >
+      {selectedPoolForLend && (
+        <div className="borrowlend-collateral-details">
+          <h4>Pool Information</h4>
+          <div className="borrowlend-collateral-summary">
+            <div className="borrowlend-collateral-header">
+              <div className="borrowlend-collateral-info">
+                <span className="borrowlend-expert-name">{selectedPoolForLend.category} Pool</span>
+                <span className="borrowlend-token-category">Lending Pool</span>
               </div>
             </div>
-          )}
-
-          <div className="borrowlend-calculator">
-            <div className="borrowlend-input-group">
-              <label className="borrowlend-input-label">Deposit Amount (USDC)</label>
-              <div className="borrowlend-input-container">
-                <input
-                  type="number"
-                  value={lendAmount}
-                  onChange={(e) => setLendAmount(parseFloat(e.target.value) || 0)}
-                  className="borrowlend-amount-input"
-                  placeholder="0.00"
-                />
-                <span className="borrowlend-input-suffix">USDC</span>
+            <div className="borrowlend-collateral-metrics">
+              <div className="borrowlend-collateral-metric">
+                <span className="borrowlend-metric-label">APY</span>
+                <span className="borrowlend-metric-value highlight">{selectedPoolForLend.apy}%</span>
               </div>
-              <div className="borrowlend-amount-info">
-                <span>Balance: $12,547 USDC</span>
+              <div className="borrowlend-collateral-metric">
+                <span className="borrowlend-metric-label">Pool Size</span>
+                <span className="borrowlend-metric-value">${(selectedPoolForLend.totalValue / 1000).toFixed(0)}K</span>
               </div>
-            </div>
-            
-            <div className="borrowlend-yield-summary">
-              <div className="borrowlend-summary-row">
-                <span>Expected APY</span>
-                <span className="borrowlend-rate">{selectedPoolForLend ? selectedPoolForLend.apy : marketMetrics.avgApy}%</span>
+              <div className="borrowlend-collateral-metric">
+                <span className="borrowlend-metric-label">Utilization</span>
+                <span className="borrowlend-metric-value">{selectedPoolForLend.utilization}%</span>
               </div>
-              <div className="borrowlend-summary-row">
-                <span>Monthly Earnings</span>
-                <span>${lendAmount > 0 ? ((lendAmount * (selectedPoolForLend ? selectedPoolForLend.apy : marketMetrics.avgApy) / 100) / 12).toFixed(2) : '0.00'}</span>
-              </div>
-              <div className="borrowlend-summary-row">
-                <span>Annual Earnings</span>
-                <span>${lendAmount > 0 ? (lendAmount * (selectedPoolForLend ? selectedPoolForLend.apy : marketMetrics.avgApy) / 100).toFixed(2) : '0.00'}</span>
-              </div>
-            </div>
-
-            <div className="borrowlend-modal-actions">
-              <button 
-                className="borrowlend-action-btn secondary"
-                onClick={() => setShowLendModal(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="borrowlend-action-btn primary"
-                disabled={lendAmount === 0}
-              >
-                Supply Liquidity
-              </button>
             </div>
           </div>
         </div>
+      )}
+
+      <div className="borrowlend-calculator">
+        <div className="borrowlend-input-group">
+          <label className="borrowlend-input-label">Deposit Amount (USDC)</label>
+          <div className="borrowlend-input-container">
+            <input
+              type="number"
+              value={lendAmount}
+              onChange={(e) => setLendAmount(parseFloat(e.target.value) || 0)}
+              className="borrowlend-amount-input"
+              placeholder="0.00"
+            />
+            <span className="borrowlend-input-suffix">USDC</span>
+          </div>
+          <div className="borrowlend-amount-info">
+            <span>Balance: $12,547 USDC</span>
+          </div>
+        </div>
+        
+        <div className="borrowlend-yield-summary">
+          <div className="borrowlend-summary-row">
+            <span>Expected APY</span>
+            <span className="borrowlend-rate">{selectedPoolForLend ? selectedPoolForLend.apy : marketMetrics.avgApy}%</span>
+          </div>
+          <div className="borrowlend-summary-row">
+            <span>Monthly Earnings</span>
+            <span>${lendAmount > 0 ? ((lendAmount * (selectedPoolForLend ? selectedPoolForLend.apy : marketMetrics.avgApy) / 100) / 12).toFixed(2) : '0.00'}</span>
+          </div>
+          <div className="borrowlend-summary-row">
+            <span>Annual Earnings</span>
+            <span>${lendAmount > 0 ? (lendAmount * (selectedPoolForLend ? selectedPoolForLend.apy : marketMetrics.avgApy) / 100).toFixed(2) : '0.00'}</span>
+          </div>
+        </div>
       </div>
-    </div>
+    </Modal>
   );
 
   const renderBorrowView = () => (

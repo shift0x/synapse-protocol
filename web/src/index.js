@@ -22,8 +22,9 @@ import {
 } from "@tanstack/react-query";
 
 import { WagmiProvider } from 'wagmi';
-import { config } from './app/lib/chain';
+import { config } from './app/lib/chain/chain';
 import AppLayout from './app/pages/AppLayout';
+import UserStateProvider from './app/providers/UserStateProvider';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -59,7 +60,9 @@ root.render(
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={darkTheme()}>
-          <RouterProvider router={router} />
+          <UserStateProvider>
+            <RouterProvider router={router} />
+          </UserStateProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

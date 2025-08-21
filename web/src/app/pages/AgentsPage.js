@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import './AgentsPage.css';
+import DepositModal from '../features/deposit/DepositModal';
+import { useUserState } from '../providers/UserStateProvider';
+import { formatCurrency } from '../lib/utils/currency';
 
 const AgentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  
+  // Get user state data
+  const { synapseApiUser, isLoadingApiUser } = useUserState();
 
   // Sample data - replace with real API data
   const activeKeys = [
@@ -68,8 +75,7 @@ const AgentsPage = () => {
   };
 
   const handleDeposit = () => {
-    // Handle deposit logic
-    console.log('Opening deposit modal');
+    setIsDepositModalOpen(true);
   };
 
   const handleWithdraw = () => {
@@ -87,7 +93,7 @@ const AgentsPage = () => {
         <div className="page-header">
           <div className="page-content">
             <div className="section-header-left">
-              <h2 className="section-header mb-0">Connect Agents</h2>
+              <h2 className="section-header">Connect Agents</h2>
             </div>
             <p className="page-subtitle mt-2">
               Create and manage keys for your agents. Keys call into our MCP server and draw from your prepaid balance.
@@ -122,14 +128,18 @@ const AgentsPage = () => {
             </div>
             
             <div className="balance-main">
-              <div className="balance-amount">$1,234.56</div>
+              <div className="balance-amount">
+                {isLoadingApiUser ? 'Loading...' : synapseApiUser ? formatCurrency(synapseApiUser.balance.toString()) : '$0.00'}
+              </div>
               <div className="balance-status">Available</div>
             </div>
 
             <div className="balance-stats">
               <div className="stat-row">
                 <span className="stat-label">Lifetime Spend</span>
-                <span className="stat-value">$482.13</span>
+                <span className="stat-value mb-0">
+                  {isLoadingApiUser ? 'Loading...' : synapseApiUser ? formatCurrency(synapseApiUser.lifetimeUsage.toString()) : '$0.00'}
+                </span>
               </div>
             </div>
 
@@ -147,7 +157,7 @@ const AgentsPage = () => {
         <div className="keys-section">
           <div className="section-header-row">
             <div className="section-header-left">
-              <h2 className="section-header mb-0">Manage Keys</h2>
+              <h2 className="section-header">Manage Keys</h2>
               <button className="btn-primary" onClick={handleCreateKey}>
                 Create Agent Key
               </button>
@@ -217,6 +227,11 @@ const AgentsPage = () => {
             </div>
           </div>
         </div>
+
+        <DepositModal 
+          isOpen={isDepositModalOpen} 
+          onClose={() => setIsDepositModalOpen(false)}
+        />
     </div>
   );
 };

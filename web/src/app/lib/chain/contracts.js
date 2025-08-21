@@ -1213,7 +1213,7 @@ export const KnowledgeExpertPool = {
 }
 
 export const SynapseCoreContract = {
-    address: "0xa6C0785A197F29F24DB0F3f420CDAa3De4B51abb",
+    address: "0x4a8e2D91C6aED170B072AF9E8BBeEab0c5A57F84",
     abi: [
     {
       "inputs": [
@@ -1539,6 +1539,37 @@ export const SynapseCoreContract = {
           "internalType": "struct SynapseAPIUser",
           "name": "",
           "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "getAccountTokenBalances",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct TokenHolderInfo[]",
+          "name": "balances",
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",

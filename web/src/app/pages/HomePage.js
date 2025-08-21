@@ -9,7 +9,9 @@ const HomePage = () => {
           <div className="logo">
             <img src="/logo.png" className="logo-image" />
           </div>
-          <button className="launch-app-btn">Launch App</button>
+          <NavLink to="/app/dashboard">
+            <button className="launch-app-btn">Launch App</button>
+          </NavLink>
         </div>
       </header>
 
