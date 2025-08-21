@@ -4,6 +4,7 @@ import { useWriteContract } from 'wagmi';
 import { useAccount } from 'wagmi';
 import { withdrawApiCredits } from '../../lib/chain/withdrawApiCredits.ts';
 import { useUserState } from '../../providers/UserStateProvider';
+import { useToast } from '../../providers/ToastProvider';
 import { formatCurrency, parseCurrency } from '../../lib/utils/currency';
 import './WithdrawModal.css';
 import { getEtherscanLink } from '../../lib/chain/chain.js';
@@ -17,6 +18,7 @@ const WithdrawModal = ({ isOpen, onClose }) => {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const { synapseApiUser, isLoadingSynapseApiUser, updateSynapseApiUser } = useUserState();
+  const { showSuccess, showError } = useToast();
   
   // Get API Credit balance from synapseApiUser
   const apiCreditBalance = synapseApiUser?.balance || 0;
@@ -55,26 +57,25 @@ const WithdrawModal = ({ isOpen, onClose }) => {
       );
 
       if (result.success) {
-        setWithdrawMessage(
+        // Update API user balance on success
+        await updateSynapseApiUser();
+        
+        // Show success toast with transaction link
+        showSuccess(
           <>
-            Successfully withdrew {formatCurrency(numericAmount.toString())} API credits! 
+            Successfully withdrew {formatCurrency(numericAmount.toString())} API credits! <br />
             <a 
               href={getEtherscanLink(result.txHash)} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="tx-link"
             >
               View transaction
             </a>
           </>
         );
-        setWithdrawMessageType('success');
         
-        // Update API user balance on success
-        await updateSynapseApiUser();
-        
-        // Clear the amount but don't close the modal
-        setAmount('');
+        // Close the modal
+        onClose();
         
         console.log('Withdraw transaction hash:', result.txHash);
       } else {

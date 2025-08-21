@@ -5,6 +5,7 @@ import { useAccount } from 'wagmi';
 import { mintTestUSDC } from '../../lib/chain/mintTestnetUsdc.ts';
 import { depositApiCredits } from '../../lib/chain/depositApiCredits.ts';
 import { useUserState } from '../../providers/UserStateProvider';
+import { useToast } from '../../providers/ToastProvider';
 import { USDC } from '../../lib/chain/contracts.js';
 import { formatCurrency, parseCurrency } from '../../lib/utils/currency';
 import './DepositModal.css'
@@ -21,6 +22,7 @@ const DepositModal = ({ isOpen, onClose }) => {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const { tokenBalances, isLoadingBalances, updateTokenBalances, updateSynapseApiUser } = useUserState();
+  const { showSuccess, showError } = useToast();
   
   // Get USDC balance from tokenBalances
   const usdcBalance = tokenBalances[USDC.address] || 0;
@@ -62,27 +64,26 @@ const DepositModal = ({ isOpen, onClose }) => {
       );
 
       if (result.success) {
-        setDepositMessage(
+        // Update token balances and API user on success
+        await updateTokenBalances();
+        await updateSynapseApiUser();
+        
+        // Show success toast with transaction link
+        showSuccess(
           <>
-            Successfully deposited {formatCurrency(numericAmount.toString())} API credits! 
+            Successfully deposited {formatCurrency(numericAmount.toString())} API credits!  <br />
             <a 
               href={getEtherscanLink(result.txHash)} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="tx-link"
             >
               View transaction
             </a>
           </>
         );
-        setDepositMessageType('success');
         
-        // Update token balances and API user on success
-        await updateTokenBalances();
-        await updateSynapseApiUser();
-        
-        // Clear the amount but don't close the modal
-        setAmount('');
+        // Close the modal
+        onClose();
         
         console.log('Deposit transaction hash:', result.txHash);
       } else {
@@ -119,23 +120,22 @@ const DepositModal = ({ isOpen, onClose }) => {
       );
 
       if (result.success) {
-        setStatusMessage(
+        // Update token balances to show the new USDC balance
+        await updateTokenBalances();
+        
+        // Show success toast
+        showSuccess(
           <>
             Successfully minted {mintAmount} test USDC! 
             <a 
               href={getEtherscanLink(result.txHash)} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="tx-link"
             >
               View transaction
             </a>
           </>
         );
-        setStatusType('success');
-        
-        // Update token balances to show the new USDC balance
-        await updateTokenBalances();
         
         console.log('Mint transaction hash:', result.txHash);
       } else {

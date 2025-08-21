@@ -25,6 +25,7 @@ import { WagmiProvider } from 'wagmi';
 import { config } from './app/lib/chain/chain';
 import AppLayout from './app/pages/AppLayout';
 import UserStateProvider from './app/providers/UserStateProvider';
+import { ToastProvider } from './app/providers/ToastProvider';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -61,7 +62,9 @@ root.render(
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={darkTheme()}>
           <UserStateProvider>
-            <RouterProvider router={router} />
+            <ToastProvider>
+              <RouterProvider router={router} />
+            </ToastProvider>
           </UserStateProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
