@@ -1,7 +1,8 @@
 import { MODEL_LIBRARY } from '../models/models';
 import { OpenAIJsonFormatArgs } from '../models/openai';
 import { Session } from '../models/session'
-import { ChatTopic } from '../../types';
+import { ChatTopic, OperationResult } from '../../types';
+import { getExpertCategories } from '../../db/getExpertCategories';
 
 const system_prompt = `
     Imagine you work in a virtual switch board. On one side of the switch board are highly specialized ai agents that are 
@@ -12,19 +13,26 @@ const system_prompt = `
     when users provide you queries you respond with a json object with the corresponding topic and specialization like this:
 
     {
+        "category": <high level subject category of the query>,
         "topic": <topic of the query>,
         "specialization": <specialized sub topic>
     }
+    
+    look at the existing list of categories and pick the category that is the closest match. If none of the categories are an
+    appropiate match, then return the most appropiate category that should be added to the list.
+
+    existing categories: #CATEGORIES
 `
 
-export type getPromptTopicResponse = {
-    error?: string,
-    chatTopic? : ChatTopic,
-    cost?:number
-}
 
-export const getPromptTopic = async (prompt: string) : Promise<getPromptTopicResponse> => {
-    const session = new Session(system_prompt);
+export const getPromptTopic = async (prompt: string) : Promise<OperationResult<ChatTopic>> => {
+    const { error, data: categories} = await getExpertCategories();
+
+    if(error)
+        return { error }
+
+    const systemPrompt = system_prompt.replace("#CATEGORIES", JSON.stringify(categories))
+    const session = new Session(systemPrompt);
     const key = 'getPromptTopic'
     const input = `${prompt}`
 
@@ -34,7 +42,8 @@ export const getPromptTopic = async (prompt: string) : Promise<getPromptTopicRes
     const data = JSON.parse(response);
     
     return {
-        chatTopic: {
+        data: {
+            category: data.category.toLowerCase(),
             topic: data.topic.toLowerCase(),
             specialization: data.specialization.toLowerCase()
         },

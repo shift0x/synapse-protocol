@@ -31,7 +31,7 @@ export class Session {
                 console.log(response.error)
             }
 
-            this.cost += response.cost || 0;
+            this.cost += (response.cost || 0) * Number(process.env.COST_MULTIPLIER || "0");
 
             this.history.push(completion);
         }

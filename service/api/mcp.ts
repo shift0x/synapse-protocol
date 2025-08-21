@@ -2,6 +2,7 @@ import { createMcpHandler, withMcpAuth } from "mcp-handler";
 
 import getExpertInterviews from '../tools/get-expert-interviews'
 import { authenticate } from "../lib/auth/authenticate";
+import { getApiCreditBalance } from '../lib/accounts/getApiCreditBalance'
 
 const handler = createMcpHandler((server) => {
   server.tool(
@@ -20,8 +21,6 @@ const verifyToken = async (
   const { error: authError, account } = await authenticate(bearerToken) 
 
   if (authError) return undefined;
-
-  // check the account balance to ensure it is not zero. If it's not zero then return undefined
 
   return {
     token: bearerToken,

@@ -11,7 +11,7 @@ export type getOrCreateExpertResponse = {
 }
 
 
-export const getOrCreateExpert = async (topic: string, subtopic: string) : Promise<getOrCreateExpertResponse> => {
+export const getOrCreateExpert = async (category: string, topic: string, subtopic: string) : Promise<getOrCreateExpertResponse> => {
     const response : getOrCreateExpertResponse = { cost: 0 }
     const embeddings = await MODEL_LIBRARY.embeddings.embed(subtopic)
 
@@ -40,7 +40,7 @@ export const getOrCreateExpert = async (topic: string, subtopic: string) : Promi
             return response;
         }
 
-        const {error: storeDomainExpertError} = await storeDomainExpert(topic, subtopic, data, embeddings)
+        const {error: storeDomainExpertError} = await storeDomainExpert(category, topic, subtopic, data, embeddings)
 
         if(storeDomainExpertError){
             response.error = storeDomainExpertError

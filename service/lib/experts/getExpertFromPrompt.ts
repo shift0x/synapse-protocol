@@ -9,7 +9,7 @@ export type getExpertFromPromptResponse = {
 }
 
 export const getExpertFromPrompt = async (prompt: string) : Promise<getExpertFromPromptResponse> => {
-    const { error: getPromptTopicError, chatTopic, cost: getPromptTopicCost = 0 } = await getPromptTopic(prompt)
+    const { error: getPromptTopicError, data: chatTopic, cost: getPromptTopicCost = 0 } = await getPromptTopic(prompt)
 
     if(getPromptTopicError || !chatTopic){
         return {
@@ -17,7 +17,7 @@ export const getExpertFromPrompt = async (prompt: string) : Promise<getExpertFro
         }
     }
 
-    const { error: getOrCreateExpertError, expert, cost: getOrCreateExpertCost = 0} = await getOrCreateExpert(chatTopic.topic, chatTopic.specialization)
+    const { error: getOrCreateExpertError, expert, cost: getOrCreateExpertCost = 0} = await getOrCreateExpert(chatTopic.category, chatTopic.topic, chatTopic.specialization)
     
     if(getOrCreateExpertError) {
         return {

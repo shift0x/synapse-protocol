@@ -1,6 +1,7 @@
 import { getAccountByAccessKey } from "../../db/getAccountByAccessKey";
+import { getApiCreditBalance } from "../accounts/getApiCreditBalance";
 
-export const authenticate = async (reqOrHeaders: { headers: { authorization?: string } } | string): Promise<{ error?: string; account?: string }> => {
+export const authenticate = async (reqOrHeaders: { headers: { authorization?: string } } | string): Promise<{ error?: string; account?: string; accessKey?: string }> => {
     let accessKey: string;
     
     if (typeof reqOrHeaders === 'string') {
@@ -34,6 +35,17 @@ export const authenticate = async (reqOrHeaders: { headers: { authorization?: st
     if (!account) {
         return { error: 'Invalid access key' };
     }
+
+    // check the account balance to ensure it is not zero. If it's not zero then return undefined
+    const { error : apiCreditBalanceError, message : apiCreditBalanceMessage, data: balance } = await getApiCreditBalance(account)
+
+    if(apiCreditBalanceError || apiCreditBalanceMessage){
+        return { error: apiCreditBalanceError || apiCreditBalanceMessage }
+    } 
     
-    return { account };
+    if (balance && balance == 0){
+        return { error: 'account has zero balance' }
+    }
+    
+    return { account, accessKey };
 };

@@ -5,6 +5,7 @@ export const ChatRequest = z.object({
 }) 
 
 export type ChatTopic = {
+    category: string,
     topic: string,
     specialization: string
 }
@@ -58,7 +59,8 @@ export type Completion = {
 export type OperationResult<T> = {
     error?: any
     message?: string
-    data? : T
+    data? : T,
+    cost? : number
 }
 
 export type AccessKey = {
@@ -68,4 +70,11 @@ export type AccessKey = {
     access_key: string,
     lifetime_spend: number,
     is_active: boolean
+}
+
+export type UserAccount = {
+    account: string,
+    balance: number,
+    active: boolean,
+    lifetimeUsage: number
 }

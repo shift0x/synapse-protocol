@@ -4,10 +4,11 @@ export type storeDomainExpertResponse = {
     error?: string
 }
 
-export const storeDomainExpert = async (topic: string, subtopic: string, data: any, embedding : number[]) : Promise<storeDomainExpertResponse> => {
+export const storeDomainExpert = async (category: string, topic: string, subtopic: string, data: any, embedding : number[]) : Promise<storeDomainExpertResponse> => {
     const response : storeDomainExpertResponse = {}
     const {error} = await db.from("experts")
         .insert({
+            category,
             topic,
             subtopic,
             embedding,

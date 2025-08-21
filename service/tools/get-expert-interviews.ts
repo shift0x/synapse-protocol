@@ -11,7 +11,7 @@ export default {
     callback: async (query: string, authInfo: any) : Promise<any> => {
         const { interviews, cost } = await getInterviewsFromPrompt(query)
 
-        await chargeForApiKeyUsage(authInfo.token, cost)
+        await chargeForApiKeyUsage(authInfo.extra.account, authInfo.token, cost)
         
         return {
             content: [
