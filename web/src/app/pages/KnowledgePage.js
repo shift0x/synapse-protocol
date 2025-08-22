@@ -146,14 +146,14 @@ const KnowledgePage = () => {
                     Contribute
                   </button>
                 </div>
-                <h3 className="card-title">{topic.topic.length < 15 ? topic.subtopic : topic.topic}</h3>
+                <h3 className="card-title">{topic.subtopic.length > 75 ? `${topic.subtopic.substring(0, 75)}...` : topic.subtopic}</h3>
                 
                 <div className="card-stats-row">
                   <div className="stat-item">
                     <span className="stat-label">
                       Total paid
                     </span>
-                    <span className="stat-value">{formatCurrency(topic.total_paid.toString())}</span>
+                    <span className="stat-value">{formatCurrency(topic.total_paid.toFixed(2).toString())}</span>
                   </div>
                   
                   <div className="stat-item">

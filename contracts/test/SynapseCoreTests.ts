@@ -1,7 +1,7 @@
 import {loadFixture} from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { contributeExpertKnowledge, getAccountTokenBalances, depositAPICredits, getAPIAccount, getPoolById, getPools, getExperts, pay, setupTestContributorAndExpert, withdrawAPICredits } from "./helpers/synapse-core";
+import { contributeExpertKnowledge, getAccountTokenBalances, depositAPICredits, getAPIAccount, getPoolById, getPools, getExperts, pay, setupTestContributorAndExpert, withdrawAPICredits, getPoolInfoByAddress } from "./helpers/synapse-core";
 import { parseEther } from "ethers";
 import { balanceOf, transferERC20 } from "./helpers/erc20";
 import { buy, getAmountOut, getTokenHolderEarnings, sell } from "./helpers/knowledge-expert-pool";
@@ -287,6 +287,16 @@ describe ("Synapse Core Tests", () => {
     })
 
     describe("View Tests", () => {
+
+        it("should get pool information by contributor", async() => {
+            const { synapseCore, deployer, usdc } = await loadFixture(setup);
+            
+            const { contributor } = await setupTestContributorAndExpert(deployer, synapseCore, usdc);
+
+            const poolInfo = await getPoolInfoByAddress(synapseCore, deployer)
+
+            expect(poolInfo.pool).is.equal(contributor.pool);
+        })
 
         it("should get token holder balances", async () => {
             const { synapseCore, deployer, usdc, usdcAddress } = await loadFixture(setup);

@@ -1213,7 +1213,7 @@ export const KnowledgeExpertPool = {
 }
 
 export const SynapseCoreContract = {
-    address: "0x4a8e2D91C6aED170B072AF9E8BBeEab0c5A57F84",
+    address: "0xaDd784E22154515c4FE787EEf4263A8F2b821933",
     abi: [
     {
       "inputs": [
@@ -1441,6 +1441,25 @@ export const SynapseCoreContract = {
       "name": "contributeExpertKnowledge",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "contributorPools",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1723,6 +1742,77 @@ export const SynapseCoreContract = {
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "contributor",
+          "type": "address"
+        }
+      ],
+      "name": "getPoolInfoForContributor",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "pool",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "contributor",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "marketcap",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quote",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "earnings",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "swapFeesToken0",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "swapFeesToken1",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalSupply",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct PoolInfo",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "getPoolInfos",
       "outputs": [
@@ -1791,7 +1881,7 @@ export const SynapseCoreContract = {
       "inputs": [
         {
           "internalType": "address",
-          "name": "",
+          "name": "contributor",
           "type": "address"
         }
       ],

@@ -47,8 +47,9 @@ contract SynapseCore {
     /// @notice list of all pools for knowledge expert contributors
     address[] public pools;
 
-    /// @notice mapping of registered contributors
-    mapping(address => bool) public isRegisteredContributor;
+    /// @notice mapping of registered contributors to pools
+    mapping(address => uint256) public contributorPools;
+    
 
     /// @notice Only the pay master is able to manage payments to contributors
     modifier onlyPayMaster(){
@@ -124,6 +125,18 @@ contract SynapseCore {
         uint256 id
     ) public view returns (PoolInfo memory) {
         return pools.getPoolInfoById(id);
+    }
+
+    /**
+     * @notice get the pool info for the given contributor
+     * @param contributor the address to query for
+     */
+    function getPoolInfoForContributor(
+        address contributor
+    ) public view returns (PoolInfo memory) {
+        uint256 id = contributorPools[contributor];
+
+        return getPoolInfoById(id);
     }
 
     /// @notice get pool information for all created pools
@@ -224,6 +237,17 @@ contract SynapseCore {
      *******************************************************************/
 
     /**
+     * @notice get whether the given address is a known protocol contributor
+     */
+    function isRegisteredContributor(
+        address contributor
+    ) public view returns (bool) {
+        uint256 index = contributorPools[contributor];
+
+        return index > 0;
+    }
+
+    /**
      * @notice create a new contributor that is eligible for payouts when surveys are used in AI responses
      * @param displayName the name of the contributor liquidity pool
      * @param initialPoolLiquidity the amount to be deposited by the contributor
@@ -237,14 +261,11 @@ contract SynapseCore {
         uint256 initialPoolLiquidity
     ) public {
         // ensure the contributor has not already been initialized
-        bool isRegistered = isRegisteredContributor[msg.sender];
+        bool isRegistered = isRegisteredContributor(msg.sender);
 
         if(isRegistered){
             revert AlreadyKnown();
         }
-
-        // mark the contributor as registered
-        isRegisteredContributor[msg.sender] = true;
 
         // transfer funds to this contract
         IERC20(USDC).transferFrom(msg.sender, address(this), initialPoolLiquidity);
@@ -265,6 +286,9 @@ contract SynapseCore {
 
          // create a liquidity pool info
         pools.push(address(newPool));
+
+        // store the pool index associated with the contribuor
+        contributorPools[msg.sender] = pools.length-1;
 
         emit PoolCreated(address(newPool), msg.sender);
     }

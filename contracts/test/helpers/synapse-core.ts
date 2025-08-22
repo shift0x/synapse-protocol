@@ -78,6 +78,12 @@ export async function contributeExpertKnowledge(synapseCore: SynapseCore, id: nu
     await synapseCore.contributeExpertKnowledge(id, poolAddress, weightAsBig)
 }
 
+export async function getPoolInfoByAddress(synapseCore: SynapseCore, address: any) {
+    const poolInfo = await synapseCore.getPoolInfoForContributor(address);
+
+    return makeModelFromPoolInfo(poolInfo)
+}
+
 export async function setupTestContributorAndExpert(address: any, synapseCore: SynapseCore, usdc: IMintableToken, config: any = {
     expertId: 0,
     weight: 1
