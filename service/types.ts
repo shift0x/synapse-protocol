@@ -27,6 +27,7 @@ export type DomainExpertInsight = {
 }
 
 export type KnowledgeTopic = {
+    id: number,
     key: string,
     topic: string,
     subtopic: string,

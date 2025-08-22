@@ -72,6 +72,12 @@ const KnowledgePage = () => {
     }
   };
 
+  const handleRegistrationSuccess = () => {
+    // Close registration modal and open contribution modal
+    setIsContributorModalOpen(false);
+    setIsContributionModalOpen(true);
+  };
+
   return (
     
     <div className="knowledge-page">
@@ -196,6 +202,7 @@ const KnowledgePage = () => {
       <ContributorRegistrationModal
         isOpen={isContributorModalOpen}
         onClose={() => setIsContributorModalOpen(false)}
+        onSuccess={handleRegistrationSuccess}
         knowledgeTopic={selectedTopic}
       />
       

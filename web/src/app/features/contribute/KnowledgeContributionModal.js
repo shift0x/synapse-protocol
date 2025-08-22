@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../components/Modal';
 import { getKnowledgeTopicQuestions } from '../../lib/api/getKnowledgeTopicQuestions.ts';
+import { storeInterviewResponses } from '../../lib/api/storeInterviewResponses.ts';
+import { useUserState } from '../../providers/UserStateProvider';
+import { useToast } from '../../providers/ToastProvider';
 import './KnowledgeContributionModal.css';
+import { getEtherscanLink } from '../../lib/chain/chain.ts';
 
 const KnowledgeContributionModal = ({ isOpen, onClose, knowledgeTopic }) => {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  
+  const { contributorPoolInfo } = useUserState();
+  const { showSuccess, showError } = useToast();
 
   // Reset modal state when closed or topic changes
   useEffect(() => {
@@ -17,6 +25,7 @@ const KnowledgeContributionModal = ({ isOpen, onClose, knowledgeTopic }) => {
       setCurrentQuestionIndex(0);
       setAnswers({});
       setError('');
+      setIsSubmitting(false);
     }
   }, [isOpen]);
 
@@ -65,10 +74,54 @@ const KnowledgeContributionModal = ({ isOpen, onClose, knowledgeTopic }) => {
     }
   };
 
-  const handleSubmit = () => {
-    // TODO: Handle submission in next step
-    console.log('Submitting answers:', answers);
-    onClose();
+  const handleSubmit = async () => {
+    if (!knowledgeTopic?.key || !contributorPoolInfo) {
+      setError('Missing required information to submit. Please try again.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      // Format answers as interview responses
+      const interview = questions.map((question, index) => ({
+        question,
+        answer: answers[index] || ''
+      }));
+
+      // Submit the interview responses
+      const result = await storeInterviewResponses(
+        knowledgeTopic.key,
+        contributorPoolInfo.pool,
+        interview
+      );
+
+      if (result.success && result.data?.txHash) {
+        // Show success toast with transaction link
+        showSuccess(
+          <>
+            Your contribution has been submitted successfully!
+            <br />
+            <a 
+              href={getEtherscanLink(result.data.txHash)} 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              View transaction
+            </a>
+          </>
+        );
+        onClose();
+      } else {
+        setError(result.error || 'Failed to submit your contribution. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error submitting interview responses:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -115,9 +168,9 @@ const KnowledgeContributionModal = ({ isOpen, onClose, knowledgeTopic }) => {
           type="button" 
           className="btn-primary"
           onClick={handleSubmit}
-          disabled={answeredQuestions < questions.length}
+          disabled={answeredQuestions < questions.length || isSubmitting}
         >
-          Submit
+          {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
       )}
     </>

@@ -10,10 +10,22 @@ export type AccessKey = {
 
 export type KnowledgeTopic = {
     id: number,
+    key: string,
     topic: string,
     subtopic: string,
     created_at: Date,
     category: string,
     total_paid: number,
     contributors: number
+}
+
+export interface InterviewResponse {
+    question: string;
+    answer: string;
+}
+
+export interface StoreInterviewRequest {
+    key: string;
+    contributor: string;
+    interview: InterviewResponse[];
 }

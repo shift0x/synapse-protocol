@@ -10,7 +10,7 @@ import { formatCurrency, parseCurrency } from '../../lib/utils/currency';
 import './ContributorRegistrationModal.css'
 import { getEtherscanLink } from '../../lib/chain/chain.ts';
 
-const ContributorRegistrationModal = ({ isOpen, onClose, knowledgeTopic }) => {
+const ContributorRegistrationModal = ({ isOpen, onClose, onSuccess, knowledgeTopic }) => {
   const [amount, setAmount] = useState(''); 
   const [displayName, setDisplayName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -85,8 +85,12 @@ const ContributorRegistrationModal = ({ isOpen, onClose, knowledgeTopic }) => {
           </>
         );
         
-        // Close the modal
-        onClose();
+        // Call success callback or close modal
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          onClose();
+        }
       } else {
         setRegistrationMessage(result.error || 'Failed to create contributor pool');
         setRegistrationMessageType('error');
