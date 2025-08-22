@@ -9,7 +9,7 @@ import { useToast } from '../../providers/ToastProvider';
 import { USDC } from '../../lib/chain/contracts.js';
 import { formatCurrency, parseCurrency } from '../../lib/utils/currency';
 import './DepositModal.css'
-import { getEtherscanLink } from '../../lib/chain/chain.js';
+import { getEtherscanLink } from '../../lib/chain/chain.ts';
 
 const DepositModal = ({ isOpen, onClose }) => {
   const [amount, setAmount] = useState(''); 

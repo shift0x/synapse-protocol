@@ -1,12 +1,13 @@
-import { parseEther, createPublicClient, http } from 'viem';
-import { config } from './chain.ts';
+import { parseEther } from 'viem';
 import { USDC, SynapseCoreContract } from './contracts.js';
 import { ensureTokenApproval } from '../utils/token.js';
+import { sendTransaction } from './sendTransaction.ts';
 
-export const depositApiCredits = async(
+export const createContributorPool = async(
     address: string,
     writeContractAsync: any,
-    amount: number
+    displayName: string,
+    initialPoolLiquidity: number
 ): Promise<{ success: boolean; error?: string; txHash?: string; receipt?: any }> => {
     try {
         // Validate inputs
@@ -14,18 +15,26 @@ export const depositApiCredits = async(
             throw new Error('Write contract function not available');
         }
         
-        if (!amount || amount <= 0) {
-            throw new Error('Amount must be greater than 0');
+        if (!displayName || displayName.trim().length === 0) {
+            throw new Error('Display name is required');
+        }
+        
+        if (!initialPoolLiquidity || initialPoolLiquidity <= 0) {
+            throw new Error('Initial pool liquidity must be greater than 0');
         }
 
-        const amountInWei = parseEther(amount.toString());
+        if (!address) {
+            throw new Error('Wallet address is required');
+        }
+
+        const amountInWei = parseEther(initialPoolLiquidity.toString());
 
         // Ensure token approval for the SynapseCore contract
         const approvalError = await ensureTokenApproval({
             tokenAddress: USDC.address,
             ownerAddress: address,
             spenderAddress: SynapseCoreContract.address,
-            amount: amount,
+            amount: initialPoolLiquidity,
             writeContractAsync: writeContractAsync
         });
 
@@ -33,36 +42,30 @@ export const depositApiCredits = async(
             throw new Error(`Token approval failed: ${approvalError.message}`);
         }
 
-        // Execute the deposit transaction
-        const txHash = await writeContractAsync({
-            address: SynapseCoreContract.address,
-            abi: SynapseCoreContract.abi,
-            functionName: 'depositAPICredits',
-            args: [amountInWei],
-        });
+        // Execute the create contributor transaction using sendTransaction
+        const result = await sendTransaction(
+            writeContractAsync,
+            'createContributor',
+            [displayName, amountInWei]
+        );
 
-        // Create public client to wait for transaction using the existing config
-        const publicClient = createPublicClient({
-            chain: config.chains[0], // Use the first chain from the config (seiAtlantic)
-            transport: http()
-        });
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to create contributor pool');
+        }
 
-        // Wait for transaction to be mined
-        const receipt = await publicClient.waitForTransactionReceipt({
-            hash: txHash,
-        });
-
-        return { success: receipt.status === 'success', txHash, receipt };
+        return result;
     } catch (error) {
-        console.error('Error depositing API credits:', error);
+        console.error('Error creating contributor pool:', error);
         
         // Handle specific error types
-        let errorMessage = 'Failed to deposit API credits';
+        let errorMessage = 'Failed to create contributor pool';
         
         if (error.message.includes('User rejected')) {
             errorMessage = 'Transaction rejected by user';
         } else if (error.message.includes('insufficient funds')) {
             errorMessage = 'Insufficient funds for transaction';
+        } else if (error.message.includes('AlreadyKnown')) {
+            errorMessage = 'You already have a contributor pool created';
         } else if (error.message.includes('Transaction reverted')) {
             errorMessage = 'Transaction failed - contract execution reverted';
         } else if (error.message) {

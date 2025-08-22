@@ -1,6 +1,6 @@
 import { erc20Abi, formatEther, parseEther } from 'viem';
 import { readContract } from 'viem/actions';
-import { config } from '../chain/chain';
+import { config } from '../chain/chain.ts';
 
 
 export async function ensureTokenApproval({ 

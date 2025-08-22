@@ -22,7 +22,7 @@ import {
 } from "@tanstack/react-query";
 
 import { WagmiProvider } from 'wagmi';
-import { config } from './app/lib/chain/chain';
+import { config } from './app/lib/chain/chain.ts';
 import AppLayout from './app/pages/AppLayout';
 import UserStateProvider from './app/providers/UserStateProvider';
 import { ToastProvider } from './app/providers/ToastProvider';

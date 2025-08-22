@@ -2,7 +2,8 @@ import { createContext, useContext, useState, useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import { getAccountTokenBalances } from '../lib/chain/getAccountTokenBalances.ts';
 import { getSynapseApiUserAccount } from '../lib/chain/getSynapseApiUserAccount.ts';
-import { getAccountApiKeys } from '../lib/api/getAccountApiKeys.ts'
+import { getAccountApiKeys } from '../lib/api/getAccountApiKeys.ts';
+import { getContributorPoolInfo } from '../lib/chain/getContributorPoolInfo.ts';
 
 // Create the context
 const UserStateContext = createContext();
@@ -29,6 +30,10 @@ export const UserStateProvider = ({ children }) => {
   const [accessKeys, setAccessKeys] = useState([]);
   const [isLoadingAccessKeys, setIsLoadingAccessKeys] = useState(false);
   const [accessKeysError, setAccessKeysError] = useState(null);
+  
+  const [contributorPoolInfo, setContributorPoolInfo] = useState(null);
+  const [isLoadingPoolInfo, setIsLoadingPoolInfo] = useState(false);
+  const [poolInfoError, setPoolInfoError] = useState(null);
   
   const { address } = useAccount();
 
@@ -103,11 +108,35 @@ export const UserStateProvider = ({ children }) => {
     }
   };
 
-  // Load balances, API user, and access keys when address changes
+  // Function to update contributor pool info that can be called by consumers
+  const updateContributorPoolInfo = async () => {
+    if (!address) {
+      setContributorPoolInfo(null);
+      return;
+    }
+
+    setIsLoadingPoolInfo(true);
+    setPoolInfoError(null);
+
+    try {
+      const poolInfo = await getContributorPoolInfo(address);
+      
+      setContributorPoolInfo(poolInfo);
+    } catch (error) {
+      console.error('Failed to fetch contributor pool info:', error);
+      setPoolInfoError(error.message);
+      setContributorPoolInfo(null);
+    } finally {
+      setIsLoadingPoolInfo(false);
+    }
+  };
+
+  // Load balances, API user, access keys, and pool info when address changes
   useMemo(() => { 
     updateTokenBalances(); 
     updateSynapseApiUser();
     refreshAccountApiKeys();
+    updateContributorPoolInfo();
   }, [address]);
 
   const value = {
@@ -123,6 +152,10 @@ export const UserStateProvider = ({ children }) => {
     isLoadingAccessKeys,
     accessKeysError,
     refreshAccountApiKeys,
+    contributorPoolInfo,
+    isLoadingPoolInfo,
+    poolInfoError,
+    updateContributorPoolInfo,
     address
   };
 

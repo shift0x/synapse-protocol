@@ -1,5 +1,5 @@
 import { parseEther, createPublicClient, http } from 'viem';
-import { config } from './chain.js';
+import { config } from './chain.ts';
 import { SynapseCoreContract } from './contracts.js';
 
 export const withdrawApiCredits = async(

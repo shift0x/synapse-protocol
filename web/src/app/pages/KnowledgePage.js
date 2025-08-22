@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './KnowledgePage.css';
 import { getKnowledgeTopics } from '../lib/api/getKnowledgeTopics.ts';
 import { formatCurrency } from '../lib/utils/currency';
+import { useUserState } from '../providers/UserStateProvider';
+import ContributorRegistrationModal from '../features/contribute/ContributorRegistrationModal';
 
 const KnowledgePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -9,6 +11,10 @@ const KnowledgePage = () => {
   const [sortBy, setSortBy] = useState('Earnings');
   const [knowledgeTopics, setKnowledgeTopics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isContributorModalOpen, setIsContributorModalOpen] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+
+  const { contributorPoolInfo } = useUserState();
 
   useEffect(() => {
     const loadTopics = async () => {
@@ -48,6 +54,21 @@ const KnowledgePage = () => {
         return 0;
     }
   });
+
+  const handleContributeClick = (topic) => {
+    setSelectedTopic(topic);
+    
+    console.log(contributorPoolInfo);
+    
+    // Check if user is registered as contributor
+    if (contributorPoolInfo?.isRegistered) {
+      // TODO: Open the existing contributor modal
+      console.log('User is already registered, show contribution modal');
+    } else {
+      // Open registration modal for new contributors
+      setIsContributorModalOpen(true);
+    }
+  };
 
   return (
     
@@ -142,7 +163,10 @@ const KnowledgePage = () => {
               <div key={topic.id} className="knowledge-card">
                 <div className="card-header-row">
                   <div className="card-category">{topic.category}</div>
-                  <button className="contribute-btn">
+                  <button 
+                    className="contribute-btn"
+                    onClick={() => handleContributeClick(topic)}
+                  >
                     Contribute
                   </button>
                 </div>
@@ -166,6 +190,12 @@ const KnowledgePage = () => {
           </div>
         )}
       </div>
+      
+      <ContributorRegistrationModal
+        isOpen={isContributorModalOpen}
+        onClose={() => setIsContributorModalOpen(false)}
+        knowledgeTopic={selectedTopic}
+      />
     </div>
   );
 };

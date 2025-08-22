@@ -1,5 +1,5 @@
 import { createPublicClient, formatEther, http } from 'viem';
-import { config } from './chain.js';
+import { config } from './chain.ts';
 import { SynapseCoreContract } from './contracts.js';
 import { SynapseAPIUser } from './types.js'
 

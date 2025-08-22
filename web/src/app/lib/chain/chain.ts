@@ -22,3 +22,4 @@ export const config = getDefaultConfig({
 export const getEtherscanLink = (txHash) => {
   return `https://seitrace.com/tx/${txHash}?chain=atlantic-2`
 }
+

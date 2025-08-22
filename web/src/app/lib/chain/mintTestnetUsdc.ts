@@ -1,5 +1,5 @@
 import { parseEther, createPublicClient, http } from 'viem';
-import { config } from './chain.js';
+import { config } from './chain.ts';
 import { USDC } from './contracts.js';
 
 export const mintTestUSDC = async(

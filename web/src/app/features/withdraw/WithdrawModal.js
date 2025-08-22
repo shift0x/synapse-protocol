@@ -7,7 +7,7 @@ import { useUserState } from '../../providers/UserStateProvider';
 import { useToast } from '../../providers/ToastProvider';
 import { formatCurrency, parseCurrency } from '../../lib/utils/currency';
 import './WithdrawModal.css';
-import { getEtherscanLink } from '../../lib/chain/chain.js';
+import { getEtherscanLink } from '../../lib/chain/chain.ts';
 
 const WithdrawModal = ({ isOpen, onClose }) => {
   const [amount, setAmount] = useState('');
