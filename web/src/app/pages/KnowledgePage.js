@@ -1,68 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './KnowledgePage.css';
+import { getKnowledgeTopics } from '../lib/api/getKnowledgeTopics.ts';
+import { formatCurrency } from '../lib/utils/currency';
 
 const KnowledgePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('Earnings');
+  const [knowledgeTopics, setKnowledgeTopics] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample knowledge topics data
-  const knowledgeTopics = [
-    {
-      id: 1,
-      category: 'DevOps',
-      title: 'On-call incident triage playbooks',
-      totalPaid: 8661.40,
-      contributors: 32,
-      updated: 'Apr 29, 305'
-    },
-    {
-      id: 2,
-      category: 'Sales',
-      title: 'Enterprise discovery call hauristics',
-      totalPaid: 3214.13,
-      contributors: 18,
-      updated: 'Apr 202.5'
-    },
-    {
-      id: 3,
-      category: 'Support',
-      title: 'Escalation rules-of-thumb for Tier-2 Allestributors',
-      totalPaid: 2134.00,
-      contributors: 11,
-      updated: 'Apr 22, 305'
-    },
-    {
-      id: 4,
-      category: 'Security',
-      title: 'Phishing triage & containment checklist',
-      totalPaid: 2502.80,
-      contributors: 7,
-      updated: null
-    },
-    {
-      id: 5,
-      category: 'Data Eng',
-      title: 'Rellable Airflow deploy & rollback',
-      totalPaid: 1324.55,
-      contributors: 22,
-      updated: 'May 01, 2028'
-    },
-    {
-      id: 6,
-      category: 'Product',
-      title: 'Prioritization anti-patterns in roadmap planning',
-      totalPaid: 1143.12,
-      contributors: 7,
-      updated: 3
-    }
-  ];
+  useEffect(() => {
+    const loadTopics = async () => {
+      try {
+        setLoading(true);
+        const topics = await getKnowledgeTopics();
+        setKnowledgeTopics(topics);
+      } catch (error) {
+        console.error('Failed to load knowledge topics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const categories = ['All', 'DevOps', 'Sales', 'Support', 'Security', 'Data Eng', 'Product'];
-  const sortOptions = ['Earnings', 'Contributors', 'Updated', 'Alphabetical'];
+    loadTopics();
+  }, []);
+
+  const categories = ['All', ...new Set(knowledgeTopics.map(topic => topic.category))];
+  const sortOptions = ['Earnings', 'Contributors', 'Alphabetical'];
 
   const filteredTopics = knowledgeTopics.filter(topic => {
-    const matchesSearch = topic.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = topic.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          topic.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || topic.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -71,11 +39,11 @@ const KnowledgePage = () => {
   const sortedTopics = [...filteredTopics].sort((a, b) => {
     switch (sortBy) {
       case 'Earnings':
-        return b.totalPaid - a.totalPaid;
+        return b.total_paid - a.total_paid;
       case 'Contributors':
         return (b.contributors || 0) - (a.contributors || 0);
       case 'Alphabetical':
-        return a.title.localeCompare(b.title);
+        return a.topic.localeCompare(b.topic);
       default:
         return 0;
     }
@@ -99,11 +67,13 @@ const KnowledgePage = () => {
         
         <div className="earnings-section dashboard-stat-card primary">
           <div className="earnings-header">
-            <div className="earnings-title">LIFETIME EARNINGS</div>
+            <div className="earnings-title">LIFETIME PAID</div>
           </div>
           
           <div className="earnings-main">
-            <div className="earnings-amount">$2,847.32</div>
+            <div className="earnings-amount">
+              {loading ? '-' : formatCurrency(knowledgeTopics.reduce((sum, topic) => sum + topic.total_paid, 0).toString())}
+            </div>
           </div>
         </div>
       </div>
@@ -129,7 +99,7 @@ const KnowledgePage = () => {
                 <select 
                   value={selectedCategory} 
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="category-select"
+                  className="category-select capitalize"
                 >
                   {categories.map(category => (
                     <option key={category} value={category}>{category}</option>
@@ -158,56 +128,43 @@ const KnowledgePage = () => {
             </div>
           </div>
 
-          <div className="category-pills">
-            {categories.slice(1).map(category => (
-              <button
-                key={category}
-                className={`category-pill ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
-            <button className="category-pill more">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-              </svg>
-            </button>
-          </div>
+
         </div>
 
       <div className="knowledge-content">
-        <div className="knowledge-grid">
-          {sortedTopics.map((topic) => (
-            <div key={topic.id} className="knowledge-card">
-              <div className="card-header-row">
-                <div className="card-category">{topic.category}</div>
-                <button className="contribute-btn">
-                  Contribute
-                </button>
-              </div>
-              <h3 className="card-title">{topic.title}</h3>
-              
-              <div className="card-stats-row">
-                <div className="stat-item">
-                  <span className="stat-label">
-                    Total paid
-                  </span>
-                  <span className="stat-value">${topic.totalPaid.toLocaleString()}</span>
+        {loading ? (
+          <div className="loading-container">
+            <div className="spinner"></div>
+          </div>
+        ) : (
+          <div className="knowledge-grid">
+            {sortedTopics.map((topic) => (
+              <div key={topic.id} className="knowledge-card">
+                <div className="card-header-row">
+                  <div className="card-category">{topic.category}</div>
+                  <button className="contribute-btn">
+                    Contribute
+                  </button>
                 </div>
+                <h3 className="card-title">{topic.topic.length < 15 ? topic.subtopic : topic.topic}</h3>
                 
-                <div className="stat-item">
-                  {topic.contributors && (
-                    <>
-                      <span className="stat-label">Contributors</span>
-                      <span className="contributors-value">{topic.contributors} contributors</span>
-                    </>
-                  )}
+                <div className="card-stats-row">
+                  <div className="stat-item">
+                    <span className="stat-label">
+                      Total paid
+                    </span>
+                    <span className="stat-value">{formatCurrency(topic.total_paid.toString())}</span>
+                  </div>
+                  
+                  <div className="stat-item">
+                    <span className="stat-label">Contributors</span>
+                    <span className="contributors-value">{topic.contributors} contributors</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
