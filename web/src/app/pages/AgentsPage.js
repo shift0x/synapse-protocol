@@ -4,16 +4,20 @@ import DepositModal from '../features/deposit/DepositModal';
 import WithdrawModal from '../features/withdraw/WithdrawModal';
 import CreateAgentKeyModal from '../features/create-agent-key/CreateAgentKeyModal';
 import { useUserState } from '../providers/UserStateProvider';
+import { useToast } from '../providers/ToastProvider';
 import { formatCurrency } from '../lib/utils/currency';
+import { deactivateApiKey } from '../lib/api/deactivateApiKey.ts';
 
 const AgentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [isCreateKeyModalOpen, setIsCreateKeyModalOpen] = useState(false);
+  const [deactivatingKeys, setDeactivatingKeys] = useState(new Set());
   
   // Get user state data
-  const { synapseApiUser, isLoadingApiUser, accessKeys, isLoadingAccessKeys } = useUserState();
+  const { synapseApiUser, isLoadingApiUser, accessKeys, isLoadingAccessKeys, refreshAccountApiKeys, address } = useUserState();
+  const { showSuccess, showError } = useToast();
 
   // Transform access keys from API to display format
   const transformAccessKey = (key) => ({
@@ -35,9 +39,36 @@ const AgentsPage = () => {
     navigator.clipboard.writeText('https://mcp.synapse.xyz/v1/retrieve');
   };
 
-  const handleDeactivate = (keyId) => {
-    // Handle deactivation logic
-    console.log('Deactivating key:', keyId);
+  const handleDeactivate = async (keyId) => {
+    if (!address) {
+      showError('No connected account found');
+      return;
+    }
+
+    // Add key to deactivating set to show spinner
+    setDeactivatingKeys(prev => new Set([...prev, keyId]));
+
+    try {
+      const result = await deactivateApiKey(address, keyId);
+      
+      if (result.success) {
+        showSuccess(result.message || 'API key deactivated successfully');
+        // Reload the API keys to reflect the change
+        await refreshAccountApiKeys();
+      } else {
+        showError(result.error || 'Failed to deactivate API key');
+      }
+    } catch (error) {
+      console.error('Error deactivating key:', error);
+      showError('An unexpected error occurred while deactivating the API key');
+    } finally {
+      // Remove key from deactivating set
+      setDeactivatingKeys(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(keyId);
+        return newSet;
+      });
+    }
   };
 
   const handleCreateKey = () => {
@@ -52,10 +83,17 @@ const AgentsPage = () => {
     setIsWithdrawModalOpen(true);
   };
 
-  const filteredKeys = activeKeys.filter(key => 
-    key.agent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    key.apiKey.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredKeys = activeKeys
+    .filter(key => 
+      key.agent.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      key.apiKey.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Sort active keys first, then deactivated keys
+      if (a.status === 'Active' && b.status === 'Deactivated') return -1;
+      if (a.status === 'Deactivated' && b.status === 'Active') return 1;
+      return 0;
+    });
 
   return (
     <div className="agents-page">
@@ -180,8 +218,13 @@ const AgentsPage = () => {
                           <button 
                             className="deactivate-btn"
                             onClick={() => handleDeactivate(key.id)}
+                            disabled={deactivatingKeys.has(key.id)}
                           >
-                            Deactivate
+                            {deactivatingKeys.has(key.id) ? (
+                              <div className="spinner"></div>
+                            ) : (
+                              'Deactivate'
+                            )}
                           </button>
                         ) : (
                           <span className="text-muted">-</span>

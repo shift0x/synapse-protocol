@@ -1,7 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { getAccessKeysByAccount } from '../lib/keys/getAccessKeysByAccount';
 import { generateAccessKey } from '../lib/keys/generateAccessKey';
-
+import { deactivateAccessKey } from '../lib/keys/deactivateAccessKey';
+ 
 const handleGet = async (req: VercelRequest, res: VercelResponse, account: string): Promise<VercelResponse> => {
     const { data, error, message } = await getAccessKeysByAccount(account);
 
@@ -40,17 +41,35 @@ const handlePost = async (req: VercelRequest, res: VercelResponse, account: stri
     });
 };
 
-const handlePut = async (req: VercelRequest, res: VercelResponse, account: string): Promise<VercelResponse> => {
-    // TODO: Implement PUT method for updating access keys
-    return res.status(501).json({ 
-        error: 'Not implemented' 
-    });
-};
 
 const handleDelete = async (req: VercelRequest, res: VercelResponse, account: string): Promise<VercelResponse> => {
-    // TODO: Implement DELETE method for removing access keys
-    return res.status(501).json({ 
-        error: 'Not implemented' 
+    const { url } = req;
+    const pathParts = url?.split('/') || [];
+    const id = pathParts[4]; // /api/keys/account/id -> index 4
+
+    if (!id) {
+        return res.status(400).json({
+            error: 'ID parameter is required in URL path: /api/keys/:account/:id'
+        });
+    }
+
+    const keyId = parseInt(id, 10);
+    if (isNaN(keyId)) {
+        return res.status(400).json({
+            error: 'ID must be a valid number'
+        });
+    }
+
+    const { error, message } = await deactivateAccessKey(account, keyId);
+
+    if (error) {
+        return res.status(500).json({
+            error
+        });
+    }
+
+    return res.json({
+        message: message || 'Access key deactivated successfully'
     });
 };
 
@@ -83,8 +102,6 @@ export default async (req: VercelRequest, res: VercelResponse): Promise<VercelRe
                 return await handleGet(req, res, account);
             case 'POST':
                 return await handlePost(req, res, account);
-            case 'PUT':
-                return await handlePut(req, res, account);
             case 'DELETE':
                 return await handleDelete(req, res, account);
             default:
