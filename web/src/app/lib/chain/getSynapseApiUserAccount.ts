@@ -3,7 +3,7 @@ import { config } from './chain.js';
 import { SynapseCoreContract } from './contracts.js';
 import { SynapseAPIUser } from './types.js'
 
-export const getSynapseAPIUser = async (account: string) : Promise<SynapseAPIUser> => {
+export const getSynapseApiUserAccount = async (account: string) : Promise<SynapseAPIUser> => {
     try {
         // Create public client using the existing config
         const publicClient = createPublicClient({

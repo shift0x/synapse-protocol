@@ -129,7 +129,7 @@ const WithdrawModal = ({ isOpen, onClose }) => {
   );
 
   return (
-    <div class="withdraw-modal">
+    <div className="withdraw-modal">
       <Modal
         isOpen={isOpen}
         onClose={onClose}

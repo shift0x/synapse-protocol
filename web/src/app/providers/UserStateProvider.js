@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import { getAccountTokenBalances } from '../lib/chain/getAccountTokenBalances.ts';
-import { getSynapseAPIUser } from '../lib/chain/getSynapseAPIUser.ts';
+import { getSynapseApiUserAccount } from '../lib/chain/getSynapseApiUserAccount.ts';
 import { getAccountApiKeys } from '../lib/api/getAccountApiKeys.ts'
 
 // Create the context
@@ -66,7 +66,7 @@ export const UserStateProvider = ({ children }) => {
     setApiUserError(null);
 
     try {
-      const apiUser = await getSynapseAPIUser(address);
+      const apiUser = await getSynapseApiUserAccount(address);
       
       setSynapseApiUser(apiUser);
     } catch (error) {

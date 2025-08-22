@@ -1,4 +1,4 @@
-import { SynapseAPIBaseUrl } from './api'
+import { synapseApiEndpoint } from "./api.ts";
 
 export interface DeactivateApiKeyResult {
   success: boolean;
@@ -8,7 +8,7 @@ export interface DeactivateApiKeyResult {
 
 export const deactivateApiKey = async (account: string, keyId: number): Promise<DeactivateApiKeyResult> => {
     try {
-        const endpoint = `${SynapseAPIBaseUrl}/keys/${account}/${keyId}`
+        const endpoint = `${synapseApiEndpoint}/keys/${account}/${keyId}`
 
         const response = await fetch(endpoint, {
             method: 'DELETE',

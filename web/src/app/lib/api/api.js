@@ -1,1 +1,0 @@
-export const SynapseAPIBaseUrl = "http://localhost:3000/api"

@@ -1,9 +1,9 @@
-import { SynapseAPIBaseUrl } from './api'
+import { synapseApiEndpoint } from './api.ts'
 import { AccessKey } from './types'
 
 export const getAccountApiKeys = async(account: string) : Promise<AccessKey[]> => {
     try {
-        const endpoint = `${SynapseAPIBaseUrl}/keys/${account}`
+        const endpoint = `${synapseApiEndpoint}/keys/${account}`
 
         const response = await fetch(endpoint, {
             method: 'GET',

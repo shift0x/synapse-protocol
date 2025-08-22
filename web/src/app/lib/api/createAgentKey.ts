@@ -1,4 +1,4 @@
-import { SynapseAPIBaseUrl } from './api'
+import { synapseApiEndpoint } from './api.ts';
 import { AccessKey } from './types'
 
 export interface CreateAgentKeyRequest {
@@ -13,8 +13,8 @@ export interface CreateAgentKeyResult {
 
 export const createAgentKey = async (account: string, agentName: string): Promise<CreateAgentKeyResult> => {
     try {
-        const endpoint = `${SynapseAPIBaseUrl}/keys/${account}`
-
+        const endpoint = `${synapseApiEndpoint}/keys/${account}`
+        
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
