@@ -22,7 +22,9 @@ export async function getAccountTokenBalances(synapseCore: SynapseCore, account:
     return data.map(record => {
         return {
             account: record[0],
-            balance: Number(ethers.formatEther(record[1]))
+            balance: Number(ethers.formatEther(record[1])),
+            quote: Number(ethers.formatEther(record[2])),
+            valueUsd: Number(ethers.formatEther(record[3]))
         }
     });
 }
@@ -61,7 +63,8 @@ export async function getExperts(synapseCore: SynapseCore) {
             id: Number(expert[0]),
             contributors: contributors,
             lifetimeEarnings: Number(expert[2]),
-            totalWeight: Number(toNumber(expert[3]))
+            totalWeight: Number(toNumber(expert[3])),
+            key: expert[4]
         }
     })
 }
@@ -72,10 +75,14 @@ export async function getPoolById(synapseCore: SynapseCore, id: number) {
     return makeModelFromPoolInfo(info);
 }
 
-export async function contributeExpertKnowledge(synapseCore: SynapseCore, id: number, poolAddress: string, weight: number) {
+export async function contributeExpertKnowledge(synapseCore: SynapseCore, uuid: string, poolAddress: string, weight: number) {
     const weightAsBig = ethers.parseEther(weight.toString())
 
-    await synapseCore.contributeExpertKnowledge(id, poolAddress, weightAsBig)
+    if(uuid.length == 0){
+        uuid = `${Math.random()} -- ${new Date().getTime()}`
+    }
+
+    await synapseCore.contributeExpertKnowledge(uuid, poolAddress, weightAsBig)
 }
 
 export async function getPoolInfoByAddress(synapseCore: SynapseCore, address: any) {
@@ -85,7 +92,7 @@ export async function getPoolInfoByAddress(synapseCore: SynapseCore, address: an
 }
 
 export async function setupTestContributorAndExpert(address: any, synapseCore: SynapseCore, usdc: IMintableToken, config: any = {
-    expertId: 0,
+    expertKey: "",
     weight: 1
 }) {
     const depositAmount = ethers.parseEther("100000");
@@ -101,7 +108,7 @@ export async function setupTestContributorAndExpert(address: any, synapseCore: S
         return pool.contributor == contributorAddress
     })
 
-    await contributeExpertKnowledge(synapseCore, config.expertId, contributor.pool, config.weight);
+    await contributeExpertKnowledge(synapseCore, config.expertKey, contributor.pool, config.weight);
 
     const expert = (await getExperts(synapseCore))[0];
 
@@ -111,10 +118,10 @@ export async function setupTestContributorAndExpert(address: any, synapseCore: S
     }
 }
 
-export async function pay(synapseCore: SynapseCore, expertId: number, account: any, fee: number) {
+export async function pay(synapseCore: SynapseCore, key: string, account: any, fee: number) {
     const feeAmount = ethers.parseEther(fee.toString())
 
-    await synapseCore.pay(expertId, feeAmount, account);
+    await synapseCore.pay(key, feeAmount, account);
 }
 
 function makeModelFromPoolInfo(info: any) {

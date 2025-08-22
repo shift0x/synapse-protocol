@@ -4,6 +4,7 @@ import { getKnowledgeTopics } from '../lib/api/getKnowledgeTopics.ts';
 import { formatCurrency } from '../lib/utils/currency';
 import { useUserState } from '../providers/UserStateProvider';
 import ContributorRegistrationModal from '../features/contribute/ContributorRegistrationModal';
+import KnowledgeContributionModal from '../features/contribute/KnowledgeContributionModal';
 
 const KnowledgePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,6 +13,7 @@ const KnowledgePage = () => {
   const [knowledgeTopics, setKnowledgeTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isContributorModalOpen, setIsContributorModalOpen] = useState(false);
+  const [isContributionModalOpen, setIsContributionModalOpen] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState(null);
 
   const { contributorPoolInfo } = useUserState();
@@ -62,8 +64,8 @@ const KnowledgePage = () => {
     
     // Check if user is registered as contributor
     if (contributorPoolInfo?.isRegistered) {
-      // TODO: Open the existing contributor modal
-      console.log('User is already registered, show contribution modal');
+      // Open the contribution modal for existing contributors
+      setIsContributionModalOpen(true);
     } else {
       // Open registration modal for new contributors
       setIsContributorModalOpen(true);
@@ -194,6 +196,12 @@ const KnowledgePage = () => {
       <ContributorRegistrationModal
         isOpen={isContributorModalOpen}
         onClose={() => setIsContributorModalOpen(false)}
+        knowledgeTopic={selectedTopic}
+      />
+      
+      <KnowledgeContributionModal
+        isOpen={isContributionModalOpen}
+        onClose={() => setIsContributionModalOpen(false)}
         knowledgeTopic={selectedTopic}
       />
     </div>

@@ -1,8 +1,8 @@
 import hre from "hardhat";
 
 const USDC = "0xBF90F0C5D30d2DebbC940369DA435687E4C2e701";
-const PayMaster = "0xf33161532b37A3b9AC634248F31d3985bB579bBc"
-const KnowledgeMaster = "0xf33161532b37A3b9AC634248F31d3985bB579bBc"
+const PayMaster = "0x32C811643bD2eEC17DbDAb2c1eEbF32562f9bd9d"
+const KnowledgeMaster = "0x32C811643bD2eEC17DbDAb2c1eEbF32562f9bd9d"
 const fee = 100;
 
 

@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/api/keys/(.*)", "destination": "/api/keys" },
+    { "source": "/api/topics/(.*)", "destination": "/api/topics" },
     { "source": "/mcp", "destination": "/api/mcp" }
   ],
   "functions": {

@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 import { OperationResult } from "../../types";
-import { SynapseCoreContract } from "../chain/contracts";
+import { SynapseCoreContract } from "./contracts";
 
-export const useApiCreditBalance = async(expertKey: string, account: string, amount: number) : Promise<OperationResult<string>> => {
-     try {
+export const contributeExpertKnowledge = async(key: string, poolAddress: string, weight: number) : Promise<OperationResult<string>> => {
+    try {
         const provider = new ethers.JsonRpcProvider(process.env.RPC_URL as string);
         const wallet = new ethers.Wallet(process.env.SYSTEM_ACCOUNT_PRIVATE_KEY as string, provider);
         
@@ -13,15 +13,13 @@ export const useApiCreditBalance = async(expertKey: string, account: string, amo
             wallet
         );
 
-        const feeAmountBig = ethers.parseEther(amount.toString())
-
-        const tx = await contract.pay(expertKey, feeAmountBig, account);
+        const tx = await contract.contributeExpertKnowledge(key, poolAddress, weight);
         const receipt = await tx.wait();
         
         if (receipt.status === 0) {
             return {
                 error: `Transaction failed: ${tx.hash}`,
-                message: `Failed to pay network fees - transaction reverted`
+                message: `Failed to contribute expert knowledge - transaction reverted`
             };
         }
 
@@ -32,7 +30,7 @@ export const useApiCreditBalance = async(expertKey: string, account: string, amo
     } catch (error) {
         return {
             error: error,
-            message: `Failed to  pay network fees`
+            message: `Failed to contribute expert knowledge`
         };
     }
 }

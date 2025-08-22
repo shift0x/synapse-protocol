@@ -12,12 +12,14 @@ library ExpertLib {
      * @param self the list of all experts
      * @param id the identifier of the expert to get
      * @param weight the weight that should be associated with the contributor
+     * @param expertExternalId the external id of the expert
      */
     function addExpertContributor(
         ExpertInfo[] storage self,
         uint256 id,
         address contributor,
-        uint256 weight
+        uint256 weight,
+        string calldata expertExternalId
     ) internal returns (uint256) {
         // if the expert already exists we just need to add the contributor to the 
         // list maitained by the expert
@@ -37,8 +39,9 @@ library ExpertLib {
             id: self.length,
             contributors: contributors,
             lifetimeEarnings: 0,
-            totalWeight: weight
-        });
+            totalWeight: weight,
+            key: expertExternalId
+        }); 
 
         self.push(info);
 

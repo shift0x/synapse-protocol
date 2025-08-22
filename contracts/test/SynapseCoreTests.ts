@@ -116,7 +116,7 @@ describe ("Synapse Core Tests", () => {
             const poolInfo = await getPoolById(synapseCore, 1);
             const weight = .5
 
-            await contributeExpertKnowledge(synapseCore, 0, poolInfo.pool, weight);
+            await contributeExpertKnowledge(synapseCore, "", poolInfo.pool, weight);
 
             const expertInfo = (await getExperts(synapseCore))[0];
 
@@ -139,7 +139,7 @@ describe ("Synapse Core Tests", () => {
             const feeAmount = 20;
 
             await depositAPICredits(deployer, synapseCore, accountBalance, usdc);
-            await pay(synapseCore, expert.id, deployer, feeAmount);
+            await pay(synapseCore, expert.key, deployer, feeAmount);
 
             const poolInfo = await getPoolById(synapseCore, contributor.id);
 
@@ -165,7 +165,7 @@ describe ("Synapse Core Tests", () => {
             const otherSignerAddress = await signers[1].getAddress();
 
             await transferERC20(pool.pool, transferAmount, otherSignerAddress);
-            await pay(synapseCore, expert.id, deployer, feeAmount);
+            await pay(synapseCore, expert.key, deployer, feeAmount);
 
             // ensure token holders have received payouts in USDC amounts
             const expectedPayoutAmount0 = feeAmount * .9;
@@ -193,7 +193,7 @@ describe ("Synapse Core Tests", () => {
             const feeAmount = 20;
 
             await depositAPICredits(deployer, synapseCore, accountBalance, usdc);
-            await pay(synapseCore, expert.id, deployer, feeAmount);
+            await pay(synapseCore, expert.key, deployer, feeAmount);
 
             const account = await getAPIAccount(synapseCore, deployer);
 
@@ -205,12 +205,12 @@ describe ("Synapse Core Tests", () => {
             const [signer0, signer1] = await hre.ethers.getSigners();
 
             const { contributor: pool0, expert } = await setupTestContributorAndExpert(signer0, synapseCore, usdc, {
-                expertId: 0,
+                expertKey: "",
                 weight: .9
             });
 
             const { contributor: pool1 } = await setupTestContributorAndExpert(signer1, synapseCore, usdc, {
-                expertId: expert.id,
+                expertKey: expert.key,
                 weight: .1
             });
 
@@ -218,7 +218,7 @@ describe ("Synapse Core Tests", () => {
             const feeAmount = 20;
 
             await depositAPICredits(deployer, synapseCore, accountBalance, usdc);
-            await pay(synapseCore, expert.id, deployer, feeAmount);
+            await pay(synapseCore, expert.key, deployer, feeAmount);
 
             const pool0AfterPayments = await getPoolById(synapseCore, pool0.id);
             const pool1AfterPayments = await getPoolById(synapseCore, pool1.id);

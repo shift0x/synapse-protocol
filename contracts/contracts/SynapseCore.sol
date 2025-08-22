@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-import {ExpertInfo, SynapseAPIUser, PoolInfo, TokenHolderInfo} from "./Types.sol";
+import {ExpertInfo, SynapseAPIUser, PoolInfo, KnowledgeTokenBalanceInfo} from "./Types.sol";
 
 import {ExpertLib} from "./lib/ExpertLib.sol";
 import {UserLib} from "./lib/UserLib.sol";
@@ -49,6 +49,9 @@ contract SynapseCore {
 
     /// @notice mapping of registered contributors to pools
     mapping(address => uint256) public contributorPools;
+
+    /// @notice mapping from expert external unique ids to internal indexes
+    mapping(string => uint256) public expertKeyLookup;
     
 
     /// @notice Only the pay master is able to manage payments to contributors
@@ -109,7 +112,7 @@ contract SynapseCore {
         SWAP_FEE = _fee;
         POOL_FACTORY = IPoolFactory(_poolFactory); 
 
-        experts.push(ExpertInfo(0, new address[](0), 0, 0));
+        experts.push(ExpertInfo(0, new address[](0), 0, 0, ""));
         pools.push(address(0x0));
     }
 
@@ -177,20 +180,30 @@ contract SynapseCore {
      */
     function getAccountTokenBalances(
         address account
-    ) public view returns (TokenHolderInfo[] memory balances) {
+    ) public view returns (KnowledgeTokenBalanceInfo[] memory balances) {
         address[] memory _pools = pools;
 
-        balances = new TokenHolderInfo[](_pools.length);
+        balances = new KnowledgeTokenBalanceInfo[](_pools.length);
 
-        balances[0] = TokenHolderInfo({
+        uint256 usdcBalance = IERC20(USDC).balanceOf(account);
+
+        balances[0] = KnowledgeTokenBalanceInfo({
             account: USDC,
-            balance: IERC20(USDC).balanceOf(account)
+            balance: usdcBalance,
+            quote: 10**18,
+            valueUsd: usdcBalance
         });
 
         for(uint256 i = 1; i < _pools.length; i++){
-            balances[i] = TokenHolderInfo({
+            IKnowledgeExpertPool pool = IKnowledgeExpertPool(_pools[i]);
+            uint256 quote = pool.quote();
+            uint256 balance = IERC20(address(pool)).balanceOf(account);
+
+            balances[i] = KnowledgeTokenBalanceInfo({
                 account: _pools[i],
-                balance: IERC20(_pools[i]).balanceOf(account)
+                balance: balance,
+                quote: quote,
+                valueUsd: Math.mulDiv(balance, quote, 10**18)
             });
         }
 
@@ -295,26 +308,34 @@ contract SynapseCore {
 
     /**
      * @notice register a given contribution to an expert model
-     * @param expertId the expert
+     * @param expertExternalId the external identifier for the expert
      * @param poolAddress the address of the contributor to the model
      * @param weight the assigned weight of the contributions
      * @dev the weight assigned will detemine the payout amount for the contributor. 
      * Higher weight = higher value responses and higher payouts.This weighting system is a way to reduce potential spam
      */
     function contributeExpertKnowledge(
-        uint256 expertId,
+        string calldata expertExternalId,
         address poolAddress,
         uint256 weight
     ) public onlyKnowledgeMaster {
+        // get the expert id associated with the key
+        uint256 expertId = expertKeyLookup[expertExternalId];
+
         // ensure that the contributor has not already been associated with the expert
         bool isPoolContributingToExpert = IKnowledgeExpertPool(poolAddress).isContributingToExpert(expertId);
 
         if(isPoolContributingToExpert){
             revert PoolIsAlreadyContributingToExpert();
-        }
+        } 
 
         // add the contributor to the expert 
-        uint256 storedExpertId = experts.addExpertContributor(expertId, poolAddress, weight);
+        uint256 storedExpertId = experts.addExpertContributor(expertId, poolAddress, weight, expertExternalId);
+
+        // make the association from the external id to the internal index if it's changed
+        if(expertId != storedExpertId){
+            expertKeyLookup[expertExternalId] = storedExpertId;
+        }
 
         // register the expert and weight with the liquidity pool
         IKnowledgeExpertPool(poolAddress).storeExpertInformation(storedExpertId, weight);
@@ -327,12 +348,12 @@ contract SynapseCore {
     
     /**
      * @notice pay knowledge contributors when knowledge is used via API or MCP endpoints
-     * @param expertId the expert used by the caller
+     * @param expertExternalKey the expert used by the caller
      * @param fee the fee to be charged for access to expert knowledge
      * @param caller the caller who used the knoweldge
      */
     function pay(
-        uint256 expertId, 
+        string calldata expertExternalKey, 
         uint256 fee, 
         address caller
     ) public onlyPayMaster {
@@ -342,6 +363,9 @@ contract SynapseCore {
         if(balance < fee){
             revert InsufficentBalanceToPayFees();
         }
+
+        // get the expertId from the given key
+        uint256 expertId = expertKeyLookup[expertExternalKey];
 
         // log the revenue for the expert
         experts.feeCollected(expertId, fee);

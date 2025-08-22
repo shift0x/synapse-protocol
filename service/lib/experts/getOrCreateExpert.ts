@@ -3,6 +3,8 @@ import { storeDomainExpert } from '../../db/storeDomainExpert'
 import { MODEL_LIBRARY } from "../models/models"
 import { DomainExpert, DomainExpertData } from '../../types'
 import { createExpertData } from './createExpertData'
+import { contributeExpertKnowledge } from '../chain/contributeExpertKnowledge'
+import { getSystemAccountPoolInfo } from '../chain/getSystemAccountPoolInfo'
 
 export type getOrCreateExpertResponse = {
     error?: string,
@@ -47,9 +49,29 @@ export const getOrCreateExpert = async (category: string, topic: string, subtopi
 
             return response;
         }
+
+        const expert = newDomainExpert as DomainExpert
+
+        // we still need to store the domain expert contribution on chain
+        const { error: getSystemPoolInfoError, data: systemPool } = await getSystemAccountPoolInfo();
+
+        if(getSystemPoolInfoError){
+            response.error = getSystemPoolInfoError
+
+            return response;
+        }
+
+       const { error: contributeKnowledgeError } =  await contributeExpertKnowledge(expert.key, systemPool.pool, 1)
+
+       if(contributeKnowledgeError) {
+            response.error = contributeKnowledgeError
+            
+            return response;
+       }
         
         response.expert = {
-            id: (newDomainExpert as DomainExpert).id,
+            id: expert.id,
+            key: expert.key,
             topic,
             subtopic,
             data: data as DomainExpertData

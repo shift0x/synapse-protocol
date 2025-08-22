@@ -6,6 +6,13 @@ struct TokenHolderInfo {
     uint256 balance;
 }
 
+struct KnowledgeTokenBalanceInfo {
+    address account;
+    uint256 balance;
+    uint256 quote;
+    uint256 valueUsd;
+}
+
 struct PoolInfo {
     uint256 id;
     address pool;
@@ -24,6 +31,7 @@ struct ExpertInfo {
     address[] contributors;
     uint256 lifetimeEarnings;
     uint256 totalWeight;
+    string key;
 }
 
 struct SynapseAPIUser {

@@ -1213,7 +1213,7 @@ export const KnowledgeExpertPool = {
 }
 
 export const SynapseCoreContract = {
-    address: "0xaDd784E22154515c4FE787EEf4263A8F2b821933",
+    address: "0xf6863E98f2f74Bed9eE952C7Eb4d6e896cf3CEd7",
     abi: [
     {
       "inputs": [
@@ -1423,9 +1423,9 @@ export const SynapseCoreContract = {
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "expertId",
-          "type": "uint256"
+          "internalType": "string",
+          "name": "expertExternalId",
+          "type": "string"
         },
         {
           "internalType": "address",
@@ -1496,6 +1496,25 @@ export const SynapseCoreContract = {
     {
       "inputs": [
         {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "expertKeyLookup",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
@@ -1517,6 +1536,11 @@ export const SynapseCoreContract = {
           "internalType": "uint256",
           "name": "totalWeight",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "key",
+          "type": "string"
         }
       ],
       "stateMutability": "view",
@@ -1584,9 +1608,19 @@ export const SynapseCoreContract = {
               "internalType": "uint256",
               "name": "balance",
               "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quote",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "valueUsd",
+              "type": "uint256"
             }
           ],
-          "internalType": "struct TokenHolderInfo[]",
+          "internalType": "struct KnowledgeTokenBalanceInfo[]",
           "name": "balances",
           "type": "tuple[]"
         }
@@ -1625,6 +1659,11 @@ export const SynapseCoreContract = {
               "internalType": "uint256",
               "name": "totalWeight",
               "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "key",
+              "type": "string"
             }
           ],
           "internalType": "struct ExpertInfo",
@@ -1660,6 +1699,11 @@ export const SynapseCoreContract = {
               "internalType": "uint256",
               "name": "totalWeight",
               "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "key",
+              "type": "string"
             }
           ],
           "internalType": "struct ExpertInfo[]",
@@ -1899,9 +1943,9 @@ export const SynapseCoreContract = {
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "expertId",
-          "type": "uint256"
+          "internalType": "string",
+          "name": "expertExternalKey",
+          "type": "string"
         },
         {
           "internalType": "uint256",

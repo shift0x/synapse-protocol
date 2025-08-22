@@ -16,6 +16,7 @@
     "generate-api-key": "^1.0.2",
     "mcp-handler": "^1.0.1",
     "openai": "^5.10.2",
+    "viem": "^2.34.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

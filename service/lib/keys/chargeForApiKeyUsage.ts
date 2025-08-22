@@ -3,8 +3,8 @@ import { updateAccessKeyLifetimeUsage } from '../../db/updateAccessKeyLifetimeUs
 import { useApiCreditBalance } from '../accounts/useApiCreditBalance'
 import { updateDomainExpertEarnings } from '../../db/updateDomainExpertEarnings'
 
-export const chargeForApiKeyUsage = async (expertId: number, account: string, key: string, cost: number) : Promise<OperationResult<void>> => {
-    const { error : updateError } = await updateAccessKeyLifetimeUsage(key, cost)
+export const chargeForApiKeyUsage = async (expertKey: string, expertId: number, account: string, accessKey: string, cost: number) : Promise<OperationResult<string>> => {
+    const { error : updateError } = await updateAccessKeyLifetimeUsage(accessKey, cost)
 
     if(updateError)
         return { error: updateError }
@@ -14,5 +14,12 @@ export const chargeForApiKeyUsage = async (expertId: number, account: string, ke
     if(updateExpertEarningsError)
         return { error: updateExpertEarningsError}
 
-    return useApiCreditBalance(account, cost)
+    const { error: useCreditBalanceError, data: txHash } = await useApiCreditBalance(expertKey, account, cost)
+
+    if(useCreditBalanceError)
+        return { error: useCreditBalanceError }
+
+    return {
+        data: txHash
+    }
 }

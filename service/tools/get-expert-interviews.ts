@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { getInterviewsFromPrompt } from '../lib/insights/getInterviewsFromPrompt';
 import { chargeForApiKeyUsage } from '../lib/keys/chargeForApiKeyUsage';
+import { DomainExpert } from '../types';
 
 export default {
     name: "search-expert-interviews",
@@ -9,9 +10,10 @@ export default {
         query: z.string()
     },
     callback: async (query: string, authInfo: any) : Promise<any> => {
-        const { interviews, cost } = await getInterviewsFromPrompt(query)
+        const { expert, interviews, cost } = await getInterviewsFromPrompt(query);
+        const usedExpert = expert as DomainExpert
 
-        await chargeForApiKeyUsage(authInfo.extra.account, authInfo.token, cost)
+        await chargeForApiKeyUsage(usedExpert.key, usedExpert.id, authInfo.extra.account, authInfo.token, cost)
         
         return {
             content: [
