@@ -5,7 +5,7 @@ export type getDomainExpertsResponse = {
     data? : any[]
 }
 
-export const getDomainExperts = async (embedding : number[], match_count: number, match_threshold : number) : Promise<any> => {
+export const getDomainExpertsByEmbedding = async (embedding : number[], match_count: number, match_threshold : number) : Promise<any> => {
     const { data, error } = await db.rpc('search_domain_experts', {
         embedding,
         match_threshold,

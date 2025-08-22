@@ -1,4 +1,4 @@
-import { getDomainExperts } from '../../db/getDomainExperts'
+import { getDomainExpertsByEmbedding } from '../../db/getDomainExpertsByEmbedding'
 import { storeDomainExpert } from '../../db/storeDomainExpert'
 import { MODEL_LIBRARY } from "../models/models"
 import { DomainExpert, DomainExpertData } from '../../types'
@@ -21,7 +21,7 @@ export const getOrCreateExpert = async (category: string, topic: string, subtopi
         return response;
     }
 
-    const { error: getDomainExpertsError, data } = await getDomainExperts(embeddings, 1, .875)
+    const { error: getDomainExpertsError, data } = await getDomainExpertsByEmbedding(embeddings, 1, .875)
 
     if(getDomainExpertsError){
         response.error = getDomainExpertsError;
@@ -40,7 +40,7 @@ export const getOrCreateExpert = async (category: string, topic: string, subtopi
             return response;
         }
 
-        const {error: storeDomainExpertError} = await storeDomainExpert(category, topic, subtopic, data, embeddings)
+        const {error: storeDomainExpertError, data: newDomainExpert} = await storeDomainExpert(category, topic, subtopic, data, embeddings)
 
         if(storeDomainExpertError){
             response.error = storeDomainExpertError
@@ -49,6 +49,7 @@ export const getOrCreateExpert = async (category: string, topic: string, subtopi
         }
         
         response.expert = {
+            id: (newDomainExpert as DomainExpert).id,
             topic,
             subtopic,
             data: data as DomainExpertData

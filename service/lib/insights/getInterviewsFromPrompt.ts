@@ -4,6 +4,7 @@ import { getInterviewsFromExpert } from './getInterviewsFromExpert';
 
 export type getInsightsFromPromptResponse = {
     error?: string,
+    expertId? : number,
     interviews?: DomainExpertInterview[] ,
     cost: number
 }
@@ -21,6 +22,7 @@ export const getInterviewsFromPrompt = async(prompt: string) : Promise<getInsigh
     const interviews = await getInterviewsFromExpert(expert);
 
     return {
+        expertId: expert.id,
         interviews,
         cost
     };

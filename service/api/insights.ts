@@ -26,11 +26,14 @@ export default async(req: VercelRequest, res: VercelResponse) : Promise<VercelRe
         }
 
         const request = ChatRequest.parse(req.body);
-        const { interviews, error, cost } = await getInterviewsFromPrompt(request.prompt)
+        const { interviews, error, cost, expertId = 0 } = await getInterviewsFromPrompt(request.prompt)
         
         if(error){ throw error; }
 
-        await chargeForApiKeyUsage(account, accessKey, cost )
+        const { error: chargeError } = await chargeForApiKeyUsage(expertId, account, accessKey, cost )
+
+        if(chargeError)
+            console.error(chargeError)
 
         return res.json({
             price: cost,

@@ -18,10 +18,6 @@ const system_prompt = `
         "specialization": <specialized sub topic>
     }
     
-    look at the existing list of categories and pick the category that is the closest match. If none of the categories are an
-    appropiate match, then return the most appropiate category that should be added to the list.
-
-    existing categories: #CATEGORIES
 `
 
 
@@ -31,8 +27,7 @@ export const getPromptTopic = async (prompt: string) : Promise<OperationResult<C
     if(error)
         return { error }
 
-    const systemPrompt = system_prompt.replace("#CATEGORIES", JSON.stringify(categories))
-    const session = new Session(systemPrompt);
+    const session = new Session(system_prompt);
     const key = 'getPromptTopic'
     const input = `${prompt}`
 

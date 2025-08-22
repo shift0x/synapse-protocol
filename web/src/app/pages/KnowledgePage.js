@@ -87,7 +87,7 @@ const KnowledgePage = () => {
       <div className="page-header">
         <div className="page-content">
           <div className="section-header-left">
-            <h2 className="section-header mb-0">
+            <h2 className="section-header">
               <span>Share your field wisdom.</span>
               <span>Earn when it's used.</span>
             </h2>

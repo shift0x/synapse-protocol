@@ -26,7 +26,18 @@ export type DomainExpertInsight = {
     response: string
 }
 
+export type KnowledgeTopic = {
+    id: number,
+    topic: string,
+    subtopic: string,
+    created_at: Date,
+    category: string,
+    total_paid: number,
+    contributors: number
+}
+
 export type DomainExpert = {
+    id: number,
     topic: string,
     subtopic: string,
     data: DomainExpertData
