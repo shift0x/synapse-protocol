@@ -1,11 +1,12 @@
 import { formatEther } from 'viem';
 import { readContract } from './readContract.ts'
 import { ContributorPoolInfo } from './types'
+import { SynapseCoreContract } from './contracts.js';
 
 export const getContributorPoolInfo = async (account: string) : Promise<ContributorPoolInfo> => {
     try {
-        const isRegisteredContributor = await readContract("isRegisteredContributor", [account])
-        const poolInfo = await readContract("getPoolInfoForContributor", [account])
+        const isRegisteredContributor = await readContract(SynapseCoreContract, "isRegisteredContributor", [account])
+        const poolInfo = await readContract(SynapseCoreContract, "getPoolInfoForContributor", [account])
 
         poolInfo.id = Number(poolInfo.id);
         poolInfo.marketcap = Number(formatEther(poolInfo.marketcap));

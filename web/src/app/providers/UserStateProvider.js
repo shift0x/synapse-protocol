@@ -131,6 +131,12 @@ export const UserStateProvider = ({ children }) => {
     }
   };
 
+  // Function to get token balance by address
+  const getTokenBalance = (tokenAddress) => {
+    if (!tokenAddress || !tokenBalances) return '0';
+    return tokenBalances[tokenAddress] || '0';
+  };
+
   // Load balances, API user, access keys, and pool info when address changes
   useMemo(() => { 
     updateTokenBalances(); 
@@ -144,6 +150,7 @@ export const UserStateProvider = ({ children }) => {
     isLoadingBalances,
     balancesError,
     updateTokenBalances,
+    getTokenBalance,
     synapseApiUser,
     isLoadingApiUser,
     apiUserError,

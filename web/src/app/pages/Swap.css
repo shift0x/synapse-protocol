@@ -32,11 +32,151 @@
   margin: 0 auto;
 }
 
-/* Left Panel - Token List */
+/* Left Panel - Knowledge Pools Table */
 .swap-page .swap-left-panel {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+/* Pools Table Styles */
+.pools-table-container {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.pools-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.pools-table th {
+  padding: 1rem;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.02);
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pools-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+  color: white;
+}
+
+.pool-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+  transition: background-color 0.2s ease;
+}
+
+.pool-id {
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+.name-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar-small {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.address-short {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  background: rgba(51, 65, 85, 0.5);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.address-short:hover {
+  background: rgba(51, 65, 85, 0.8);
+}
+
+.quote-price {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.price-value {
+  font-weight: 600;
+  color: #10b981;
+}
+
+.price-unit {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.market-cap, .earnings, .total-supply {
+  font-weight: 500;
+}
+
+.fees-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.total-fees-value {
+  font-weight: 600;
+}
+
+.fees-detail {
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+.trade-btn-small {
+  background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.trade-btn-small:hover {
+  transform: translateY(-2px);
+}
+
+.loading-message, .error-message {
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+}
+
+.error-message {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
 }
 
 .swap-page .search-section {
@@ -435,6 +575,9 @@
   color: white;
   font-size: 1.5rem;
   font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .swap-page .amount-input:focus {
@@ -456,6 +599,14 @@
   font-weight: 500;
   color: white;
   min-width: fit-content;
+}
+
+.swap-page .formatted-amount {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .swap-page .swap-arrow {

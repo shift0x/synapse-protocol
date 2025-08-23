@@ -1,96 +1,174 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getKnowledgeTokenPools } from '../lib/chain/getKnowledgeTokenPools.ts';
 import './Swap.css';
+import { formatCurrency } from '../lib/utils/currency.js';
+import { useUserState } from '../providers/UserStateProvider.js';
+import { USDC } from '../lib/chain/contracts.js';
+import { getAmountOut } from '../lib/chain/getAmountOut.ts';
+import { useWriteContract, useAccount } from 'wagmi';
+import { useToast } from '../providers/ToastProvider.js';
+import { swap } from '../lib/chain/swap.ts';
+import { getEtherscanLink } from '../lib/chain/chain.ts';
 
 const Swap = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('Top');
   const [isSwapping, setIsSwapping] = useState('Buy');
-  const [payAmount, setPayAmount] = useState('500');
-  const [receiveAmount, setReceiveAmount] = useState('203.71');
+  const [payAmount, setPayAmount] = useState(null);
+  const [receiveAmount, setReceiveAmount] = useState(null);
 
-  const tokens = [
-    {
-      id: 'EXP-001',
-      name: 'revops',
-      price: '2.41',
-      change: '+4.2%',
-      changePercent: '+4.2%',
-      marketCap: '32M',
-      lifetimeEarnings: '14.2K',
-      yield: 3.2,
-      currency: 'USDC',
-      isPositive: true
-    },
-    {
-      id: 'EXP-014',
-      name: 'Salce Discovery',
-      price: '118',
-      change: '+2.0%',
-      changePercent: '+2.5%',
-      marketCap: '128M',
-      lifetimeEarnings: '67.8K',
-      yield: 4.66,
-      currency: 'USDC',
-      isPositive: true
-    },
-    {
-      id: 'EXP-009',
-      name: 'Security Triage',
-      price: '0.34',
-      change: '-1.3%',
-      changePercent: '-1.2%',
-      marketCap: '98M',
-      lifetimeEarnings: '45.1K',
-      yield: 8.32,
-      currency: 'USDC',
-      isPositive: false
-    },
-    {
-      id: 'EXP-023',
-      name: 'Tier 2 Support',
-      price: '0.72',
-      change: '+0.8%',
-      changePercent: '+0.2%',
-      marketCap: '55M',
-      lifetimeEarnings: '23.9K',
-      yield: 1.25,
-      currency: 'USDC',
-      isPositive: true
-    },
-    {
-      id: 'EXP-005',
-      name: 'Data Eng Punbooks',
-      price: '167',
-      change: '+7.1%',
-      changePercent: '+7.1%',
-      marketCap: '204M',
-      lifetimeEarnings: '156.3K',
-      yield: 7.83,
-      currency: 'USDC',
-      isPositive: true
-    },
-    {
-      id: 'EXP-017',
-      name: 'Product Heuristics',
-      price: '0.53',
-      change: '-0.6%',
-      changePercent: '-0.9%',
-      marketCap: '34M',
-      lifetimeEarnings: '18.7K',
-      yield: 4.67,
-      currency: 'USDC',
-      isPositive: false
+  const handlePayAmountChange = (e) => {
+    const value = e.target.value;
+    // Allow empty string or valid numbers (including decimals)
+    if (value === '' || !isNaN(parseFloat(value))) {
+      setPayAmount(value);
     }
-  ];
+  };
+  const [tokens, setTokens] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedToken, setSelectedToken] = useState(null);
+  const [isSwapLoading, setIsSwapLoading] = useState(false);
+  
+  const { getTokenBalance, updateTokenBalances } = useUserState();
+  const { address } = useAccount();
+  const { writeContractAsync } = useWriteContract();
+  const { showSuccess, showError } = useToast();
 
-  const filters = ['Top', 'Rising', 'New', 'Verified'];
+  useEffect(() => {
+    const fetchTokens = async () => {
+      try {
+        setLoading(true);
+        const poolData = await getKnowledgeTokenPools();
+        
+        // Transform pool data for table display
+        const transformedTokens = poolData.map(pool => {
+          const quoteDecimals = pool.quote > .1 ? 2 : 6;
+          const model = {
+            ...pool
+          }
+
+          
+          model.name = pool.name || `Knowledge Pool #${pool.id}`
+          model.quote = parseFloat(pool.quote).toFixed(quoteDecimals)
+          model.marketcap = parseFloat(pool.marketcap).toFixed(2)
+          model.earnings = parseFloat(pool.earnings).toFixed(2)
+          model.totalSwapFeesUsd = parseFloat(pool.totalSwapFeesUsd).toFixed(2)
+          model.shortName = pool.name.length > 10 ? `${pool.name.substring(0,10)}...` : pool.name
+          model.longName = pool.name.length > 30 ? `${pool.name.substring(0,30)}...` : pool.name
+
+          return model;
+            
+        });
+        
+        setTokens(transformedTokens);
+      } catch (err) {
+        console.error('Error fetching knowledge token pools:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTokens();
+  }, []);
+
+  useEffect(() => {
+    if(!payAmount || !selectedToken || payAmount == 0 || isNaN(payAmount)){ 
+      setReceiveAmount(null);
+      return;
+    }
+
+    const tokenIn = isSwapping ? USDC.address : selectedToken.pool;
+    const tokenOut = isSwapping ? selectedToken.pool : USDC.address;
+    const amountIn = payAmount;
+
+    const fetchAmountOut = async() => {
+      if(!payAmount || !selectedToken){ return ; }
+
+      const amountOut = await getAmountOut(selectedToken.pool, tokenIn, tokenOut, amountIn)
+      const amountOutFixed = amountOut > 1 ? amountOut.toFixed(2) : amountOut.toFixed(6);
+
+      setReceiveAmount(amountOutFixed);
+    }
+
+    fetchAmountOut();
+  }, [payAmount, selectedToken])
+
+  // Filter tokens based on search query
+  const filteredTokens = tokens.filter(token => 
+    token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    token.id.toString().includes(searchQuery)
+  );
+
+  // Handle token selection for trading
+  const handleSelectToken = (token) => {
+    setSelectedToken(token);
+    setPayAmount(null);
+    setReceiveAmount(null);
+  };
+
+  // Handle swap execution
+  const handleSwap = async () => {
+    if (!selectedToken || !payAmount || !address || !writeContractAsync) {
+      showError('Please select a token and enter an amount');
+      return;
+    }
+
+    if (parseFloat(payAmount) <= 0) {
+      showError('Please enter a valid amount');
+      return;
+    }
+
+    setIsSwapLoading(true);
+
+    try {
+      const tokenIn = isSwapping === 'Buy' ? USDC.address : selectedToken.pool;
+      const result = await swap(
+        address,
+        writeContractAsync,
+        selectedToken.pool,
+        tokenIn,
+        parseFloat(payAmount)
+      );
+
+      if (result.success) {
+        showSuccess(
+          <div>
+            Swap completed successfully! <br />
+            <a 
+              href={getEtherscanLink(result.txHash)} 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              View Transaction
+            </a>
+          </div>,
+          10000
+        );
+        
+        // Reset form
+        setPayAmount(null);
+        setReceiveAmount(null);
+        
+        // Update balances
+        await updateTokenBalances();
+      } else {
+        showError(`Swap failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Swap error:', error);
+      showError(`Swap failed: ${error.message || 'Unknown error occurred'}`);
+    } finally {
+      setIsSwapLoading(false);
+    }
+  };
 
   return (
     <div className="swap-page">
       <div className="page-header">
         <div className="page-content">
           <div className="section-header-left">
-            <h2 className="section-header mb-0">Swap Knowledge Tokens</h2>
+            <h2 className="section-header">Swap Knowledge Tokens</h2>
           </div>
           <p className="page-subtitle mt-2">
              Discover and trade tokens representing contributor earnings.<br />
@@ -117,73 +195,62 @@ const Swap = () => {
             </div>
           </div>
 
-          <div className="tokens-list">
-            {tokens.map(token => (
-              <div key={token.id} className="token-row">
-                <div className="token-info">
-                  <div className="token-avatar">
-                    <div className="avatar-circle">
-                      {token.id.split('-')[1]}
-                    </div>
-                  </div>
-                  <div className="token-details">
-                    <div className="token-id">{token.id}</div>
-                    <div className="token-name">{token.name}</div>
-                  </div>
-                </div>
-
-                <div className="token-price">
-                  <div className="price-value">${token.price}</div>
-                  <div className="price-currency">{token.currency}</div>
-                </div>
-
-                <div className="token-chart">
-                  <div className="chart-placeholder">
-                    {token.isPositive ? (
-                      <svg viewBox="0 0 40 20" className="chart-positive">
-                        <path d="M0,15 Q10,10 20,8 T40,5" stroke="#10b981" strokeWidth="2" fill="none"/>
-                      </svg>
-                    ) : (
-                      <svg viewBox="0 0 40 20" className="chart-negative">
-                        <path d="M0,5 Q10,8 20,12 T40,15" stroke="#ef4444" strokeWidth="2" fill="none"/>
-                      </svg>
-                    )}
-                  </div>
-                </div>
-
-                <div className={`token-change ${token.isPositive ? 'positive' : 'negative'}`}>
-                  <div className="change-percent">{token.change}</div>
-                  <div className="change-detail">{token.changePercent}</div>
-                </div>
-
-                <div className="token-market-cap">
-                  <div className="market-cap-value">{token.marketCap}</div>
-                  <div className="market-cap-label">M.Cap</div>
-                </div>
-
-                <div className="token-earnings">
-                  <div className="earnings-value">{token.lifetimeEarnings}</div>
-                  <div className="earnings-label">Lifetime</div>
-                </div>
-
-                <div className="token-yield">
-                  <div className="yield-value">{token.yield}%</div>
-                  <div className="yield-label">Yield</div>
-                </div>
-
-                <div className="token-action">
-                  <button className="trade-btn">Trade</button>
-                </div>
-              </div>
-            ))}
+          <div className="pools-table-container">
+            {loading && <div className="loading-message">Loading knowledge token pools...</div>}
+            {error && <div className="error-message">Error: {error}</div>}
+            {!loading && !error && (
+              <table className="pools-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Quote Price</th>
+                    <th>Market Cap</th>
+                    <th>Earnings</th>
+                    <th>Total Fees</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {filteredTokens.map(token => (
+                    <tr key={token.id} className="pool-row">
+                      <td className="pool-name">
+                        <div className="name-container">
+                          <span>{token.name}</span>
+                        </div>
+                      </td>
+                      <td className="quote-price">
+                        <span className="price-value">{token.quote < 100 ? `$${token.quote}` : formatCurrency(token.quote.toString())}</span>
+                        <span className="price-unit">USDC</span>
+                      </td>
+                      <td className="market-cap">
+                        <span className="cap-value">{ token.marketcap < 100 ? `$${token.marketcap}` : formatCurrency(token.marketcap.toString())}</span>
+                      </td>
+                      <td className="earnings">
+                        <span className="earnings-value">{token.earnings < 100 ? `$${token.earnings}` : formatCurrency(token.earnings.toString())}</span>
+                      </td>
+                      <td className="total-fees">
+                        <span className="total-fees-value">{token.totalSwapFeesUsd < 100 ? `$${token.totalSwapFeesUsd}` : formatCurrency(token.totalSwapFeesUsd.toString())}</span>
+                      </td>
+                      <td className="actions">
+                      <button 
+                          className="trade-btn-small"
+                           onClick={() => handleSelectToken(token)}
+                         >
+                           Trade
+                         </button>
+                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
         <div className="swap-right-panel">
           <div className="swap-widget">
             <div className="swap-widget-header">
-              <h3 className="widget-title">Swap</h3>
-              <div className="currency-display">$ • USD</div>
+              <h3 className="widget-title">Swap {selectedToken ? selectedToken.longName : ""}</h3>
             </div>
 
             <div className="swap-toggle">
@@ -204,17 +271,22 @@ const Swap = () => {
             <div className="swap-inputs">
               <div className="input-section">
                 <div className="input-header">
-                  <span className="input-label">Pay</span>
-                  <span className="input-balance">Balance 1234.36</span>
+                  <span className="input-label">Send</span>
+                  <span className="input-balance">
+                    Balance {isSwapping === 'Buy' ? getTokenBalance(USDC.address.toString()) : (selectedToken ? getTokenBalance(selectedToken.pool) : '0')}
+                  </span>
                 </div>
                 <div className="input-container">
                   <input
                     type="text"
                     className="amount-input"
                     value={payAmount}
-                    onChange={(e) => setPayAmount(e.target.value)}
+                    onChange={handlePayAmountChange}
+                    placeholder="0.00"
                   />
-                  <div className="currency-selector">USDC</div>
+                  <div className="currency-selector">
+                    {isSwapping === 'Buy' ? 'USDC' : (selectedToken ? selectedToken.shortName : 'Select Token')}
+                  </div>
                 </div>
               </div>
 
@@ -226,56 +298,40 @@ const Swap = () => {
               </div>
 
               <div className="input-section">
-                <div className="input-header">
-                  <span className="input-label">Receive</span>
-                  <span className="input-balance">Balance</span>
-                </div>
-                <div className="input-container">
-                  <span className="receive-amount">≈ {receiveAmount}</span>
-                  <div className="currency-selector">ERP-00</div>
-                </div>
+              <div className="input-header">
+              <span className="input-label">Receive</span>
+              <span className="input-balance">
+              Balance {isSwapping === 'Buy' ? (selectedToken ? getTokenBalance(selectedToken.pool) : '0') : getTokenBalance(USDC.address).toString()}
+              </span>
               </div>
+              <div className="input-container">
+                <span className="receive-amount">≈ {receiveAmount}</span>
+                  <div className="currency-selector">
+                     {isSwapping === 'Buy' ? (selectedToken ? selectedToken.shortName : 'Select Token') : 'USDC'}
+                   </div>
+                 </div>
+               </div>
             </div>
 
             <div className="trade-details">
-              <div className="detail-row">
-                <span>Price 1 EXP-001 -</span>
-                <span>2.45 USDC</span>
-              </div>
-              <div className="detail-row">
-                <span>Slippage: 6.5%</span>
-                <span>Price-Impact</span>
-              </div>
+            <div className="detail-row">
+            <span>Price </span>
+            <span>{selectedToken ? `${selectedToken.quote} USDC` : '0 USDC'}</span>
+            </div>
               <div className="detail-row">
                 <span>Fees</span>
-                <span>LP 0.35% - Protocol 0.65%</span>
+                <span>0.1%</span>
               </div>
             </div>
 
-            <button className="swap-execute-btn">Swap</button>
+            <button 
+              className="swap-execute-btn"
+              onClick={handleSwap}
+              disabled={!selectedToken || !payAmount || isSwapLoading}
+            >
+              {isSwapLoading ? 'Swapping...' : 'Swap'}
+            </button>
             
-            <div className="approve-section">
-              <span className="approve-text">Approve EXP-001</span>
-            </div>
-
-            <div className="holdings-section">
-              <div className="holdings-header">
-                <span>You hold:</span>
-                <span className="holdings-amount">1,120.44 EXP-</span>
-              </div>
-              <div className="holdings-detail">
-                <span>Est. share of earnings</span>
-                <span>3.2</span>
-              </div>
-            </div>
-
-            <div className="disclaimer">
-              <p>
-                Tokens represent revenue rights fo<br />
-                contributor content. Availability may be<br />
-                region-restricted
-              </p>
-            </div>
           </div>
         </div>
       </div>

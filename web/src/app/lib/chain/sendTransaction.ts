@@ -1,16 +1,16 @@
 import { createPublicClient, http } from 'viem';
-import { SynapseCoreContract } from './contracts.js';
 import { config } from './chain.ts';
 
 export const sendTransaction = async(
+    contract: any,
     writeContractAsync: any,
     functionName: string,
     args: any[]
 ): Promise<{ success: boolean; error?: string; txHash?: string; receipt?: any }> => {
   try {
     const txHash = await writeContractAsync({
-        address: SynapseCoreContract.address,
-        abi: SynapseCoreContract.abi,
+        address: contract.address,
+        abi: contract.abi,
         functionName: functionName,
         args: args,
     });
