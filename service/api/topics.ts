@@ -5,6 +5,16 @@ import { storeInterviewResponses } from '../db/storeInterviewResponses';
 import { storeNewExpertContribution } from '../lib/experts/storeNewExpertContribution'
 
 const handleGet = async (req: VercelRequest, res: VercelResponse): Promise<VercelResponse> => {
+    // Set CORS headers to allow requests from any origin
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    
     const { url } = req;
     const pathParts = url?.split('/') || [];
     const id = pathParts[3]; // /api/topics/id -> index 3
