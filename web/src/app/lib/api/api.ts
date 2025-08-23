@@ -1,1 +1,1 @@
-export const synapseApiEndpoint = process.env.REACT_APP_SYNAPSE_API_BASE_URL || "https://synapse-protocol-api.vercel.app"
+export const synapseApiEndpoint = process.env.REACT_APP_SYNAPSE_API_BASE_URL || "https://synapse-protocol-api.vercel.app/api"
