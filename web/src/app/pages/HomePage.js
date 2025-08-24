@@ -9,7 +9,7 @@ const HomePage = () => {
           <div className="logo">
             <img src="/logo.png" className="logo-image" />
           </div>
-          <NavLink to="/app/dashboard">
+          <NavLink to="/app/knowledge">
             <button className="launch-app-btn">Launch App</button>
           </NavLink>
         </div>
@@ -31,7 +31,7 @@ const HomePage = () => {
           </div>
 
           <div className="cta-buttons">
-            <NavLink to="/app/dashboard">
+            <NavLink to="/app/knowledge">
                 <button className="btn-primary">Launch App</button>
             </NavLink>
             <NavLink to="/app/agents">

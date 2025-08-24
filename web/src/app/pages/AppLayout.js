@@ -3,7 +3,7 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import './AppLayout.css';
 
-const AppLayout = ({ balance = '1,234.56' }) => {
+const AppLayout = () => {
   return (
     <div className="page-container">
       <header className="header">
@@ -15,12 +15,12 @@ const AppLayout = ({ balance = '1,234.56' }) => {
           </div>
           <nav className="nav-links">
             <NavLink 
-              to="/app/dashboard" 
+              to="/app/knowledge" 
               className={({ isActive }) => isActive ? 'active' : ''}
             >
-              Dashboard
+              Share Knowledge
             </NavLink>
-            
+
             <NavLink 
               to="/app/agents" 
               className={({ isActive }) => isActive ? 'active' : ''}
@@ -28,12 +28,6 @@ const AppLayout = ({ balance = '1,234.56' }) => {
               Manage Agents
             </NavLink>
 
-            <NavLink 
-              to="/app/knowledge" 
-              className={({ isActive }) => isActive ? 'active' : ''}
-            >
-              Share Knowledge
-            </NavLink>
             <NavLink 
               to="/app/swap" 
               className={({ isActive }) => isActive ? 'active' : ''}
