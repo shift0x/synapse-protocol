@@ -557,7 +557,7 @@ const BorrowLendPage = () => {
     <div className="borrowlend-page">
       <div className="borrowlend-header">
         <div className="borrowlend-title-section">
-          <h2 className="borrowlend-title">Borrow & Lend</h2>
+          <h2 className="borrowlend-title">Borrow & Lend (In Progress)</h2>
           <p className="borrowlend-subtitle">
             Borrow against future knowledge earnings or supply liquidity to earn yield
           </p>
