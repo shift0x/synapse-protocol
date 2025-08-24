@@ -9,6 +9,7 @@ export const createContributorPool = async(
     displayName: string,
     initialPoolLiquidity: number
 ): Promise<{ success: boolean; error?: string; txHash?: string; receipt?: any }> => {
+    console.log({writeContractAsync})
     try {
         // Validate inputs
         if (!writeContractAsync) {
@@ -44,6 +45,7 @@ export const createContributorPool = async(
 
         // Execute the create contributor transaction using sendTransaction
         const result = await sendTransaction(
+            SynapseCoreContract,
             writeContractAsync,
             'createContributor',
             [displayName, amountInWei]

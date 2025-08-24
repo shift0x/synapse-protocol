@@ -110,6 +110,7 @@ export const UserStateProvider = ({ children }) => {
 
   // Function to update contributor pool info that can be called by consumers
   const updateContributorPoolInfo = async () => {
+    console.log(`updateContributorPoolInfo`)
     if (!address) {
       setContributorPoolInfo(null);
       return;

@@ -6,6 +6,24 @@ import { SynapseCoreContract } from './contracts.js';
 export const getContributorPoolInfo = async (account: string) : Promise<ContributorPoolInfo> => {
     try {
         const isRegisteredContributor = await readContract(SynapseCoreContract, "isRegisteredContributor", [account])
+
+        if(!isRegisteredContributor){
+            return {
+                id:0,
+                pool: "",
+                contributor: account,
+                marketcap: 0,
+                quote: 0,
+                earnings: 0,
+                swapFeesToken0: 0,
+                swapFeesToken1: 0,
+                totalSupply: 0,
+                name: "",
+                isRegistered: false,
+                swapFeesInUSDC: 0
+            }
+        }
+        
         const poolInfo = await readContract(SynapseCoreContract, "getPoolInfoForContributor", [account])
 
         poolInfo.id = Number(poolInfo.id);
