@@ -2,6 +2,8 @@
 
 A decentralized knowledge monetization platform that enables domain experts to contribute specialized knowledge and earn rewards when AI models access that knowledge through Model Context Protocol (MCP) integrations.
 
+Providing expert knowledge to agents allow builders to create smarter and more capable agents in less time
+
 ## Overview
 
 Synapse Protocol creates a marketplace for expert knowledge where:
