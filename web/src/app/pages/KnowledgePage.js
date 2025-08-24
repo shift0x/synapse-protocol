@@ -178,7 +178,7 @@ const KnowledgePage = () => {
                     Contribute
                   </button>
                 </div>
-                <h3 className="card-title">{topic.subtopic.length > 50 ? `${topic.subtopic.substring(0, 50)}...` : topic.subtopic}</h3>
+                <h3 className="card-title">{topic.subtopic.length > 60 ? `${topic.subtopic.substring(0, 60)}...` : topic.subtopic}</h3>
                 
                 <div className="card-stats-row">
                   <div className="stat-item">

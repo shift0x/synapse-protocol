@@ -36,7 +36,7 @@ const AgentsPage = () => {
   const activeKeys = accessKeys ? accessKeys.map(transformAccessKey) : [];
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText('https://mcp.synapse.xyz/v1/retrieve');
+    navigator.clipboard.writeText('https://synapse-protocol-api.vercel.app/mcp');
   };
 
   const handleDeactivate = async (keyId) => {
