@@ -68,6 +68,7 @@ export const getOrCreateExpert = async (category: string, topic: string, subtopi
             
             return response;
        }
+
         
         response.expert = {
             id: expert.id,

@@ -19,7 +19,8 @@ export const storeDomainExpert = async (category: string, topic: string, subtopi
             topic,
             subtopic,
             embedding,
-            data: extradata
+            data: extradata,
+            contributors: 1
         })
         .select()
         .single()
